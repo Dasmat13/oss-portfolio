@@ -1,0 +1,29 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for trailing whitespace
+        run: |
+          if grep -rn " $" --include="*.md" --include="*.yml" --include="*.yaml" .; then
+            echo "Found trailing whitespace!"
+            exit 1
+          fi
+          echo "No trailing whitespace found ✓"
+
+      - name: Validate YAML files
+        run: |
+          find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules | while read f; do
+            python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" "$f" && echo "✓ $f"
+          done
