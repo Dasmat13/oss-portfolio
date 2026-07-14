@@ -1,11 +1,11 @@
-# OSS Portfolio 🚀
+# GitHub Contribution Showcase 🚀
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/react-18.x-blue)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.x-blue)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/vite-5.x-purple)](https://vitejs.dev/)
 
-OSS Portfolio is a premium, real-time developer portfolio dashboard built to showcase open-source contributions. It fetches your GitHub pull requests, issues, and profile data directly from the GitHub API and presents them in a beautiful, filterable, and responsive user interface.
+GitHub Contribution Showcase is a premium, real-time developer portfolio dashboard built to showcase open-source contributions. It fetches your GitHub pull requests, issues, and profile data directly from the GitHub API and presents them in a beautiful, filterable, and responsive user interface.
 
 ## ✨ Features
 
