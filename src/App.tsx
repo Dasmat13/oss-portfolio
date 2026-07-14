@@ -508,6 +508,22 @@ export default function App() {
           </div>
 
           <div className="config-section">
+            <a 
+              href="https://github.com/Dasmat13/oss-portfolio" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn-primary"
+              style={{ 
+                background: 'linear-gradient(135deg, #f39c12, #f1c40f)', 
+                color: '#000000', 
+                fontWeight: '600', 
+                border: 'none',
+                textDecoration: 'none'
+              }}
+            >
+              <Star size={14} fill="#000000" />
+              <span>Star on GitHub</span>
+            </a>
             <button className="btn-primary" onClick={() => setShowConfig(!showConfig)}>
               <SlidersHorizontal size={14} />
               <span>Configure Account</span>
