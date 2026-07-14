@@ -1006,6 +1006,7 @@ export default function App() {
                         const repo = getRepoName(item.html_url);
                         const lang = getRepoLanguage(repo);
                         const langColor = getLanguageColor(lang);
+                        const repoStars = repoDetails[repo]?.stars ?? REPO_FALLBACKS[repo]?.stars;
 
                         let cardState = 'open';
                         let badgeLabel = 'Open';
@@ -1045,7 +1046,7 @@ export default function App() {
                                 {lang}
                               </span>
 
-                              {repoDetails[repo]?.stars !== undefined && (
+                              {repoStars !== undefined && (
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                                   <Star size={11} style={{ fill: 'var(--accent-amber)', stroke: 'none' }} />
                                   {getRepoStars(repo)} stars
