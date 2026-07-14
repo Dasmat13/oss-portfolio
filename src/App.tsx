@@ -121,6 +121,12 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     color: '#083fa1', 
     stars: 2200, 
     description: 'My first repository on GitHub' 
+  },
+  'Dasmat13/oss-portfolio': {
+    language: 'TypeScript',
+    color: '#3178c6',
+    stars: 100,
+    description: 'A real-time developer showcase dashboard'
   }
 };
 
