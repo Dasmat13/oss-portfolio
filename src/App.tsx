@@ -22,6 +22,7 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 import './App.css';
+import { fetchAllSearchResults } from './github-search';
 
 // Fallbacks for popular repositories the developer contributes to.
 // This prevents unnecessary API hits on first load.
@@ -245,37 +246,24 @@ export default function App() {
       const qOpenIssue = `is:issue+is:open+author:${user}`;
       const qClosedIssue = `is:issue+is:closed+author:${user}`;
 
-      const [mergedRes, openPrRes, openIssueRes, closedIssueRes] = await Promise.all([
-        fetch(`https://api.github.com/search/issues?q=${qMerged}&per_page=100`, { headers }),
-        fetch(`https://api.github.com/search/issues?q=${qOpenPr}&per_page=100`, { headers }),
-        fetch(`https://api.github.com/search/issues?q=${qOpenIssue}&per_page=100`, { headers }),
-        fetch(`https://api.github.com/search/issues?q=${qClosedIssue}&per_page=100`, { headers })
+      const [mergedItems, openPrItems, openIssueItems, closedIssueItems] = await Promise.all([
+        fetchAllSearchResults(qMerged, headers, handleRateLimitHeaders),
+        fetchAllSearchResults(qOpenPr, headers, handleRateLimitHeaders),
+        fetchAllSearchResults(qOpenIssue, headers, handleRateLimitHeaders),
+        fetchAllSearchResults(qClosedIssue, headers, handleRateLimitHeaders)
       ]);
 
-      handleRateLimitHeaders(mergedRes.headers);
-
-      if (!mergedRes.ok || !openPrRes.ok || !openIssueRes.ok || !closedIssueRes.ok) {
-        throw new Error('Failed to query contribution list. Rate limit might be reached.');
-      }
-
-      const [mergedJson, openPrJson, openIssueJson, closedIssueJson] = await Promise.all([
-        mergedRes.json(),
-        openPrRes.json(),
-        openIssueRes.json(),
-        closedIssueRes.json()
-      ]);
-
-      setMergedPRs(mergedJson.items || []);
-      setOpenPRs(openPrJson.items || []);
-      setOpenIssues(openIssueJson.items || []);
-      setClosedIssues(closedIssueJson.items || []);
+      setMergedPRs(mergedItems);
+      setOpenPRs(openPrItems);
+      setOpenIssues(openIssueItems);
+      setClosedIssues(closedIssueItems);
 
       // Extract unique repository names across all resources
       const allItems = [
-        ...(mergedJson.items || []),
-        ...(openPrJson.items || []),
-        ...(openIssueJson.items || []),
-        ...(closedIssueJson.items || [])
+        ...mergedItems,
+        ...openPrItems,
+        ...openIssueItems,
+        ...closedIssueItems
       ];
 
       const uniqueRepos = Array.from(
