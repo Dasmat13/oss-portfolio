@@ -128,6 +128,12 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     color: '#3178c6',
     stars: 100,
     description: 'A real-time developer showcase dashboard'
+  },
+  'Dasmat13/kubecorrelate': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 12,
+    description: 'A unified CNCF-grade CLI debug stream for container logs, Kubernetes events, config updates, and node pressures.'
   }
 };
 
