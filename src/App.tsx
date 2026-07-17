@@ -292,7 +292,17 @@ export default function App() {
           const cached = localStorage.getItem(`repo_cache_${repo}`);
           if (cached) {
             try {
-              detailsMap[repo] = JSON.parse(cached);
+              const parsed = JSON.parse(cached);
+              if (
+                parsed &&
+                parsed.data &&
+                typeof parsed.timestamp === 'number' &&
+                Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000
+              ) {
+                detailsMap[repo] = parsed.data;
+              } else {
+                fetchQueue.push(repo);
+              }
             } catch (e) {
               fetchQueue.push(repo);
             }
@@ -316,7 +326,7 @@ export default function App() {
                 stars: data.stargazers_count || 0,
                 description: data.description || ''
               };
-              localStorage.setItem(`repo_cache_${repo}`, JSON.stringify(detail));
+              localStorage.setItem(`repo_cache_${repo}`, JSON.stringify({ data: detail, timestamp: Date.now() }));
               detailsMap[repo] = detail;
             } else {
               detailsMap[repo] = { language: 'Markdown', color: '#083fa1', stars: 0, description: '' };
