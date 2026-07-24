@@ -151,7 +151,7 @@ const CNCF_SIG_MAPPING: Record<string, { sig?: string; status: string; badgeColo
   'sig-no-z/signoz': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
   'novuhq/novu': { status: 'Open Source', badgeColor: '#eadecd' },
   'backstage/backstage': { status: 'CNCF Incubating', badgeColor: '#c084fc' },
-  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'AI Co-authored (Antigravity)', badgeColor: '#a855f7' }
+  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'Personal Project', badgeColor: '#4ade80' }
 };
 
 const getLanguageColor = (lang: string): string => {
@@ -1031,8 +1031,19 @@ export default function App() {
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                           {reposStats.slice(0, 6).map(repo => {
-                            const matchKey = Object.keys(CNCF_SIG_MAPPING).find(k => k.toLowerCase() === repo.name.toLowerCase());
-                            const mapping = matchKey ? CNCF_SIG_MAPPING[matchKey] : null;
+                            const getRepoMapping = (repoName: string) => {
+                              const matchKey = Object.keys(CNCF_SIG_MAPPING).find(k => k.toLowerCase() === repoName.toLowerCase());
+                              if (matchKey) {
+                                return CNCF_SIG_MAPPING[matchKey];
+                              }
+                              const isPersonal = repoName.toLowerCase().startsWith(`${username.toLowerCase()}/`);
+                              return {
+                                sig: undefined,
+                                status: isPersonal ? 'Personal Project' : 'Open Source',
+                                badgeColor: isPersonal ? '#4ade80' : '#cbd5e1'
+                              };
+                            };
+                            const mapping = getRepoMapping(repo.name);
 
                             return (
                               <div key={repo.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
@@ -1055,7 +1066,6 @@ export default function App() {
                                         border: '1.5px solid #000000',
                                         boxShadow: '1px 1px 0px #000000'
                                       }}>
-                                        {mapping.status.includes('AI Co-authored') && <Sparkles size={9} />}
                                         {mapping.status}
                                       </span>
                                     )}
