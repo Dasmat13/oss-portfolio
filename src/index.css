@@ -1167,8 +1167,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dark .logo-icon,
+.dark .app-header,
+.dark .profile-card,
 .dark .stat-card,
+.dark .sidebar-card,
+.dark .contribution-card,
+.dark .overview-card,
+.dark .rate-limit-card,
 .dark .chart-container,
+.dark .dashboard-container,
 .dark .tab-nav,
 .dark .search-container,
 .dark .filter-group,
@@ -1181,6 +1188,7 @@ h1, h2, h3, h4, h5, h6 {
 .dark .config-drawer,
 .dark .app-footer,
 .dark .avatar-filter-picker,
+.dark .input-group,
 .dark .input-group input,
 .dark .config-section button[style*="background: var(--bg-tertiary)"] {
   background: var(--bg-secondary) !important;
@@ -1195,6 +1203,18 @@ h1, h2, h3, h4, h5, h6 {
 
 .dark .profile-login,
 .dark .profile-meta,
+.dark .profile-meta-item,
+.dark .profile-stat-lbl,
+.dark .profile-stat-val,
+.dark .stat-card-lbl,
+.dark .stat-card-val,
+.dark .filter-pill,
+.dark .filter-count,
+.dark .card-title-link,
+.dark .card-meta-item,
+.dark .overview-card-title,
+.dark .timeline-date,
+.dark .app-footer,
 .dark .app-title a,
 .dark .logo-text,
 .dark .logo-icon svg {
