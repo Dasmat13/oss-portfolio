@@ -1203,56 +1203,271 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Global Page Filters */
 html.page-filter-punk-collage {
-  filter: contrast(110%) saturate(135%) hue-rotate(15deg);
+  --bg-primary: #ff007f !important;
+  --bg-secondary: #00f0ff !important;
+  --bg-tertiary: #a855f7 !important;
+  --bg-card: #ffe600 !important;
+  --text-primary: #000000 !important;
+  --text-secondary: #000000 !important;
+  --border-color: #000000 !important;
+  filter: contrast(110%) saturate(120%) !important;
 }
+
+html.page-filter-punk-collage .app-header,
+html.page-filter-punk-collage .profile-card,
+html.page-filter-punk-collage .logo-icon,
+html.page-filter-punk-collage .stat-card,
+html.page-filter-punk-collage .chart-container,
+html.page-filter-punk-collage .tab-nav,
+html.page-filter-punk-collage .search-container,
+html.page-filter-punk-collage .filter-group,
+html.page-filter-punk-collage .data-card,
+html.page-filter-punk-collage .empty-state,
+html.page-filter-punk-collage .metric-card,
+html.page-filter-punk-collage .config-drawer,
+html.page-filter-punk-collage .app-footer,
+html.page-filter-punk-collage .avatar-filter-picker {
+  background: #ffe600 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+html.page-filter-punk-collage .btn-primary {
+  background: #00f0ff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+html.page-filter-punk-collage .filter-pill.active,
+html.page-filter-punk-collage .tab-nav button.active {
+  background: #ff007f !important;
+  color: #ffffff !important;
+}
+
 html.page-filter-punk-collage::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: linear-gradient(45deg, rgba(255, 0, 127, 0.03) 25%, transparent 25%) 0 0 / 8px 8px,
-              linear-gradient(-45deg, rgba(0, 240, 255, 0.03) 25%, transparent 25%) 4px 4px / 8px 8px;
-  mix-blend-mode: color-dodge;
+  background-image: 
+    linear-gradient(45deg, rgba(0, 0, 0, 0.12) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.12) 25%, transparent 25%);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
+  mix-blend-mode: overlay;
   pointer-events: none;
   z-index: 99999;
-}
-html.page-filter-punk-collage.dark::after {
-  opacity: 0.5;
+  opacity: 0.35;
 }
 
 html.page-filter-dithered-1bit {
-  filter: contrast(115%) grayscale(30%);
+  --bg-primary: #ffffff !important;
+  --bg-secondary: #ffffff !important;
+  --bg-tertiary: #e2e8f0 !important;
+  --bg-card: #ffffff !important;
+  --text-primary: #000000 !important;
+  --text-secondary: #000000 !important;
+  --border-color: #000000 !important;
+  filter: grayscale(100%) contrast(140%) !important;
 }
+
+html.page-filter-dithered-1bit .app-header,
+html.page-filter-dithered-1bit .profile-card,
+html.page-filter-dithered-1bit .logo-icon,
+html.page-filter-dithered-1bit .stat-card,
+html.page-filter-dithered-1bit .chart-container,
+html.page-filter-dithered-1bit .tab-nav,
+html.page-filter-dithered-1bit .search-container,
+html.page-filter-dithered-1bit .filter-group,
+html.page-filter-dithered-1bit .data-card,
+html.page-filter-dithered-1bit .empty-state,
+html.page-filter-dithered-1bit .metric-card,
+html.page-filter-dithered-1bit .config-drawer,
+html.page-filter-dithered-1bit .app-footer,
+html.page-filter-dithered-1bit .avatar-filter-picker {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+html.page-filter-dithered-1bit .btn-primary {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+html.page-filter-dithered-1bit .filter-pill.active,
+html.page-filter-dithered-1bit .tab-nav button.active {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
 html.page-filter-dithered-1bit::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 25%, transparent 25%);
-  background-size: 6px 6px;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.22) 20%, transparent 20%),
+                    radial-gradient(rgba(0, 0, 0, 0.22) 20%, transparent 20%);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+  mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 99999;
 }
+
+html.page-filter-dithered-1bit.dark {
+  --bg-primary: #000000 !important;
+  --bg-secondary: #000000 !important;
+  --bg-tertiary: #1a1a1f !important;
+  --bg-card: #000000 !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #ffffff !important;
+  --border-color: #ffffff !important;
+}
+
+html.page-filter-dithered-1bit.dark .app-header,
+html.page-filter-dithered-1bit.dark .profile-card,
+html.page-filter-dithered-1bit.dark .logo-icon,
+html.page-filter-dithered-1bit.dark .stat-card,
+html.page-filter-dithered-1bit.dark .chart-container,
+html.page-filter-dithered-1bit.dark .tab-nav,
+html.page-filter-dithered-1bit.dark .search-container,
+html.page-filter-dithered-1bit.dark .filter-group,
+html.page-filter-dithered-1bit.dark .data-card,
+html.page-filter-dithered-1bit.dark .empty-state,
+html.page-filter-dithered-1bit.dark .metric-card,
+html.page-filter-dithered-1bit.dark .config-drawer,
+html.page-filter-dithered-1bit.dark .app-footer,
+html.page-filter-dithered-1bit.dark .avatar-filter-picker {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+html.page-filter-dithered-1bit.dark .btn-primary {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: 3px 3px 0px #ffffff !important;
+}
+
+html.page-filter-dithered-1bit.dark .filter-pill.active,
+html.page-filter-dithered-1bit.dark .tab-nav button.active {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
 html.page-filter-dithered-1bit.dark::after {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 25%, transparent 25%);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 20%, transparent 20%),
+                    radial-gradient(rgba(255, 255, 255, 0.15) 20%, transparent 20%);
+  mix-blend-mode: screen;
 }
 
 html.page-filter-cmyk-dots {
-  filter: contrast(110%) saturate(120%);
+  --bg-primary: #f5eedc !important;
+  --bg-secondary: #faf4e8 !important;
+  --bg-tertiary: #e3d9c3 !important;
+  --bg-card: #faf4e8 !important;
+  --text-primary: #121218 !important;
+  --text-secondary: #2c2c36 !important;
+  --border-color: #121218 !important;
 }
+
+html.page-filter-cmyk-dots .app-header,
+html.page-filter-cmyk-dots .profile-card,
+html.page-filter-cmyk-dots .logo-icon,
+html.page-filter-cmyk-dots .stat-card,
+html.page-filter-cmyk-dots .chart-container,
+html.page-filter-cmyk-dots .tab-nav,
+html.page-filter-cmyk-dots .search-container,
+html.page-filter-cmyk-dots .filter-group,
+html.page-filter-cmyk-dots .data-card,
+html.page-filter-cmyk-dots .empty-state,
+html.page-filter-cmyk-dots .metric-card,
+html.page-filter-cmyk-dots .config-drawer,
+html.page-filter-cmyk-dots .app-footer,
+html.page-filter-cmyk-dots .avatar-filter-picker {
+  background: #faf4e8 !important;
+  color: #121218 !important;
+  border-color: #121218 !important;
+}
+
+html.page-filter-cmyk-dots .btn-primary {
+  background: #e3a857 !important;
+  color: #121218 !important;
+  border-color: #121218 !important;
+  box-shadow: 3px 3px 0px #121218 !important;
+}
+
+html.page-filter-cmyk-dots .filter-pill.active,
+html.page-filter-cmyk-dots .tab-nav button.active {
+  background: #121218 !important;
+  color: #faf4e8 !important;
+}
+
 html.page-filter-cmyk-dots::after {
   content: '';
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle, rgba(0, 255, 255, 0.03) 18%, transparent 22%) 0 0 / 12px 12px,
-    radial-gradient(circle, rgba(255, 0, 255, 0.03) 18%, transparent 22%) 4px 4px / 12px 12px,
-    radial-gradient(circle, rgba(255, 255, 0, 0.03) 18%, transparent 22%) 8px 8px / 12px 12px;
+    radial-gradient(circle, rgba(0, 255, 255, 0.12) 18%, transparent 22%) 0 0 / 10px 10px,
+    radial-gradient(circle, rgba(255, 0, 255, 0.12) 18%, transparent 22%) 3px 3px / 10px 10px,
+    radial-gradient(circle, rgba(255, 255, 0, 0.12) 18%, transparent 22%) 6px 6px / 10px 10px;
   mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 99999;
 }
+
+html.page-filter-cmyk-dots.dark {
+  --bg-primary: #121216 !important;
+  --bg-secondary: #1a1a22 !important;
+  --bg-tertiary: #272733 !important;
+  --bg-card: #1a1a22 !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #cbd5e1 !important;
+  --border-color: #ffffff !important;
+}
+
+html.page-filter-cmyk-dots.dark .app-header,
+html.page-filter-cmyk-dots.dark .profile-card,
+html.page-filter-cmyk-dots.dark .logo-icon,
+html.page-filter-cmyk-dots.dark .stat-card,
+html.page-filter-cmyk-dots.dark .chart-container,
+html.page-filter-cmyk-dots.dark .tab-nav,
+html.page-filter-cmyk-dots.dark .search-container,
+html.page-filter-cmyk-dots.dark .filter-group,
+html.page-filter-cmyk-dots.dark .data-card,
+html.page-filter-cmyk-dots.dark .empty-state,
+html.page-filter-cmyk-dots.dark .metric-card,
+html.page-filter-cmyk-dots.dark .config-drawer,
+html.page-filter-cmyk-dots.dark .app-footer,
+html.page-filter-cmyk-dots.dark .avatar-filter-picker {
+  background: #1a1a22 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+html.page-filter-cmyk-dots.dark .btn-primary {
+  background: #ea580c !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: 3px 3px 0px #ffffff !important;
+}
+
+html.page-filter-cmyk-dots.dark .filter-pill.active,
+html.page-filter-cmyk-dots.dark .tab-nav button.active {
+  background: #ffffff !important;
+  color: #121216 !important;
+}
+
 html.page-filter-cmyk-dots.dark::after {
+  background: 
+    radial-gradient(circle, rgba(0, 255, 255, 0.18) 18%, transparent 22%) 0 0 / 10px 10px,
+    radial-gradient(circle, rgba(255, 0, 255, 0.18) 18%, transparent 22%) 3px 3px / 10px 10px,
+    radial-gradient(circle, rgba(255, 255, 0, 0.18) 18%, transparent 22%) 6px 6px / 10px 10px;
   mix-blend-mode: screen;
-  opacity: 0.6;
+  opacity: 0.7 !important;
 }
 
 
