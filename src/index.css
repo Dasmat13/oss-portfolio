@@ -1022,3 +1022,121 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-around;
   }
 }
+
+/* Avatar filter switcher styling */
+.profile-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-img-wrapper {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 6px;
+  border: var(--border-width) solid #000000;
+  box-shadow: 3px 3px 0px #000000;
+  overflow: hidden;
+  background: #000000;
+}
+
+.avatar-img-wrapper .profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  transition: filter 0.2s ease;
+}
+
+.avatar-filter-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+/* Punk Collage Filter: High-contrast saturation duotone with retro matrix scanlines */
+.avatar-img-wrapper.filter-punk-collage .profile-avatar {
+  filter: contrast(180%) brightness(95%) saturate(220%) hue-rotate(280deg);
+}
+.avatar-img-wrapper.filter-punk-collage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, #ff007f 25%, transparent 25%) 0 0 / 4px 4px,
+              linear-gradient(-45deg, #00f0ff 25%, transparent 25%) 2px 2px / 4px 4px;
+  mix-blend-mode: color-dodge;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Dithered 1-bit Filter: High-contrast b&w with fine halftone matrix */
+.avatar-img-wrapper.filter-dithered-1bit .profile-avatar {
+  filter: grayscale(100%) contrast(800%) brightness(95%);
+}
+.avatar-img-wrapper.filter-dithered-1bit .avatar-filter-overlay {
+  opacity: 1;
+  mix-blend-mode: multiply;
+  background-image: radial-gradient(circle, #000000 25%, transparent 25%),
+                    radial-gradient(circle, #000000 25%, transparent 25%);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+}
+
+/* CMYK Dots Filter: Comic halftone separation print dots */
+.avatar-img-wrapper.filter-cmyk-dots .profile-avatar {
+  filter: contrast(150%) saturate(150%);
+}
+.avatar-img-wrapper.filter-cmyk-dots .avatar-filter-overlay {
+  opacity: 0.85;
+  mix-blend-mode: screen;
+  background: 
+    radial-gradient(circle, rgba(0, 255, 255, 0.8) 18%, transparent 22%) 0 0 / 6px 6px,
+    radial-gradient(circle, rgba(255, 0, 255, 0.8) 18%, transparent 22%) 2px 2px / 6px 6px,
+    radial-gradient(circle, rgba(255, 255, 0, 0.8) 18%, transparent 22%) 4px 4px / 6px 6px;
+}
+
+/* Picker control styling */
+.avatar-filter-picker {
+  display: flex;
+  gap: 2px;
+  background: #ffffff;
+  padding: 2px;
+  border: 2px solid #000000;
+  border-radius: 6px;
+  box-shadow: 2px 2px 0px #000000;
+  z-index: 10;
+}
+
+.avatar-filter-picker button {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 6px;
+  border: none;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.1s ease;
+}
+
+.avatar-filter-picker button:hover {
+  background: #f3f4f6;
+  color: #000000;
+}
+
+.avatar-filter-picker button.active {
+  background: #000000;
+  color: #ffffff;
+}
+

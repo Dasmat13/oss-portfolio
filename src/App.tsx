@@ -137,6 +137,23 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
   }
 };
 
+const CNCF_SIG_MAPPING: Record<string, { sig?: string; status: string; badgeColor: string }> = {
+  'kubernetes/kubespray': { sig: 'SIG Cluster Lifecycle', status: 'Kubernetes Subproject', badgeColor: '#4ade80' },
+  'kubernetes/kubernetes': { sig: 'Core K8s API', status: 'CNCF Graduated', badgeColor: '#38bdf8' },
+  'kubernetes/lws': { sig: 'SIG Multi-Cluster / Workloads', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/kubebuilder': { sig: 'SIG API Machinery', status: 'Kubernetes Subproject', badgeColor: '#c084fc' },
+  'kubernetes-sigs/krew-index': { sig: 'SIG CLI', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/krew': { sig: 'SIG CLI', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'helm/helm': { status: 'CNCF Graduated', badgeColor: '#facc15' },
+  'prometheus-operator/prometheus-operator': { status: 'CNCF Graduated', badgeColor: '#f472b6' },
+  'karpenter/karpenter': { sig: 'SIG Autoscaling', status: 'CNCF Incubating', badgeColor: '#38bdf8' },
+  'headlamp-k8s/headlamp': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
+  'sig-no-z/signoz': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
+  'novuhq/novu': { status: 'Open Source', badgeColor: '#eadecd' },
+  'backstage/backstage': { status: 'CNCF Incubating', badgeColor: '#c084fc' },
+  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'AI Co-authored (Antigravity)', badgeColor: '#a855f7' }
+};
+
 const getLanguageColor = (lang: string): string => {
   const colors: Record<string, string> = {
     'Go': '#00ADD8',
@@ -205,6 +222,7 @@ export default function App() {
   const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'comments'>('newest');
+  const [avatarFilter, setAvatarFilter] = useState<'none' | 'punk-collage' | 'dithered-1bit' | 'cmyk-dots'>('none');
 
   // Rate limiting indicator
   const [rateLimit, setRateLimit] = useState<{ limit: number; remaining: number; reset: number } | null>(null);
@@ -431,6 +449,38 @@ export default function App() {
       .sort((a, b) => b.count - a.count);
   }, [reposStats]);
 
+  // Aggregate CNCF / Kubernetes SIG stats based on repository contributions
+  const cncfSigStats = useMemo(() => {
+    const stats: Record<string, number> = {};
+    let total = 0;
+    
+    const addStat = (repoName: string, count: number) => {
+      const matchKey = Object.keys(CNCF_SIG_MAPPING).find(k => k.toLowerCase() === repoName.toLowerCase());
+      if (matchKey) {
+        const mapping = CNCF_SIG_MAPPING[matchKey];
+        if (mapping.sig) {
+          stats[mapping.sig] = (stats[mapping.sig] || 0) + count;
+          total += count;
+        } else if (mapping.status) {
+          stats[mapping.status] = (stats[mapping.status] || 0) + count;
+          total += count;
+        }
+      }
+    };
+
+    reposStats.forEach(repo => {
+      addStat(repo.name, repo.count);
+    });
+
+    return Object.entries(stats)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [reposStats]);
+
   // Filtered and sorted items for active tab
   const processedItems = useMemo(() => {
     let result = [...activeItemsList];
@@ -637,7 +687,18 @@ export default function App() {
         {!error && profile && (
           <section className="profile-section">
             <div className="profile-card">
-              <img src={profile.avatar_url} alt={profile.login} className="profile-avatar" />
+               <div className="profile-avatar-container">
+                 <div className={`avatar-img-wrapper filter-${avatarFilter}`}>
+                   <img src={profile.avatar_url} alt={profile.login} className="profile-avatar" />
+                   <div className="avatar-filter-overlay"></div>
+                 </div>
+                 <div className="avatar-filter-picker">
+                   <button className={avatarFilter === 'none' ? 'active' : ''} onClick={() => setAvatarFilter('none')} title="No Filter">Original</button>
+                   <button className={avatarFilter === 'punk-collage' ? 'active' : ''} onClick={() => setAvatarFilter('punk-collage')} title="Punk Collage">Punk</button>
+                   <button className={avatarFilter === 'dithered-1bit' ? 'active' : ''} onClick={() => setAvatarFilter('dithered-1bit')} title="Dithered 1-bit">1-Bit</button>
+                   <button className={avatarFilter === 'cmyk-dots' ? 'active' : ''} onClick={() => setAvatarFilter('cmyk-dots')} title="CMYK Halftone">CMYK</button>
+                 </div>
+               </div>
               <div className="profile-info">
                 <div className="profile-name-row">
                   <h2 className="profile-name">{profile.name || profile.login}</h2>
@@ -908,6 +969,33 @@ export default function App() {
                         </div>
                       </div>
 
+                      {/* CNCF & Kubernetes SIG Distribution */}
+                      <div className="overview-card">
+                        <h3 className="overview-card-title">
+                          <Sparkles size={16} className="gradient-text" />
+                          <span>CNCF & Kubernetes SIG Distribution</span>
+                        </h3>
+                        <div className="lang-bar-container">
+                          {cncfSigStats.length === 0 ? (
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No CNCF/SIG data available.</p>
+                          ) : (
+                            cncfSigStats.map(sig => (
+                              <div className="lang-row" key={sig.name}>
+                                <div className="lang-info">
+                                  <span className="lang-name" style={{ fontWeight: '700' }}>
+                                    {sig.name}
+                                  </span>
+                                  <span className="lang-pct">{sig.percentage}% ({sig.count})</span>
+                                </div>
+                                <div className="lang-progress">
+                                  <div className="lang-progress-fill" style={{ width: `${sig.percentage}%`, backgroundColor: '#38bdf8' }}></div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
                       {/* Repos list */}
                       <div className="overview-card">
                         <h3 className="overview-card-title">
@@ -915,37 +1003,74 @@ export default function App() {
                           <span>Top Contributed Repositories</span>
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                          {reposStats.slice(0, 6).map(repo => (
-                            <div key={repo.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
-                              <div style={{ flex: 1, minWidth: 0, paddingRight: '12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <a href={`https://github.com/${repo.name}`} target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }} className="timeline-link">
-                                    {repo.name}
-                                  </a>
-                                </div>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', marginTop: '2px' }}>
-                                  {repo.description || 'No description provided.'}
-                                </p>
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem' }}>
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)' }}>
-                                    <span className="lang-dot" style={{ backgroundColor: repo.color, width: '8px', height: '8px' }}></span>
-                                    {repo.language}
-                                  </span>
-                                  {repo.stars > 0 && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--text-secondary)' }}>
-                                      <Star size={11} style={{ fill: 'var(--accent-amber)', stroke: 'none' }} />
-                                      {repo.stars >= 1000 ? `${(repo.stars/1000).toFixed(1)}k` : repo.stars} stars
+                          {reposStats.slice(0, 6).map(repo => {
+                            const matchKey = Object.keys(CNCF_SIG_MAPPING).find(k => k.toLowerCase() === repo.name.toLowerCase());
+                            const mapping = matchKey ? CNCF_SIG_MAPPING[matchKey] : null;
+
+                            return (
+                              <div key={repo.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+                                <div style={{ flex: 1, minWidth: 0, paddingRight: '12px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                    <a href={`https://github.com/${repo.name}`} target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }} className="timeline-link">
+                                      {repo.name}
+                                    </a>
+                                    {mapping && (
+                                      <span style={{ 
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        fontSize: '0.65rem', 
+                                        fontWeight: 800, 
+                                        backgroundColor: mapping.badgeColor, 
+                                        color: '#000000',
+                                        padding: '1px 6px',
+                                        borderRadius: '4px',
+                                        border: '1.5px solid #000000',
+                                        boxShadow: '1px 1px 0px #000000'
+                                      }}>
+                                        {mapping.status.includes('AI Co-authored') && <Sparkles size={9} />}
+                                        {mapping.status}
+                                      </span>
+                                    )}
+                                    {mapping && mapping.sig && (
+                                      <span style={{ 
+                                        fontSize: '0.65rem', 
+                                        fontWeight: 800, 
+                                        backgroundColor: '#eadecd', 
+                                        color: '#000000',
+                                        padding: '1px 6px',
+                                        borderRadius: '4px',
+                                        border: '1.5px solid #000000',
+                                        boxShadow: '1px 1px 0px #000000'
+                                      }}>
+                                        {mapping.sig}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', marginTop: '2px' }}>
+                                    {repo.description || 'No description provided.'}
+                                  </p>
+                                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem' }}>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)' }}>
+                                      <span className="lang-dot" style={{ backgroundColor: repo.color, width: '8px', height: '8px' }}></span>
+                                      {repo.language}
                                     </span>
-                                  )}
+                                    {repo.stars > 0 && (
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--text-secondary)' }}>
+                                        <Star size={11} style={{ fill: 'var(--accent-amber)', stroke: 'none' }} />
+                                        {repo.stars >= 1000 ? `${(repo.stars/1000).toFixed(1)}k` : repo.stars} stars
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                  <span className="repo-badge">
+                                    {repo.count} {repo.count === 1 ? 'contrib' : 'contribs'}
+                                  </span>
                                 </div>
                               </div>
-                              <div style={{ textAlign: 'right' }}>
-                                <span className="repo-badge">
-                                  {repo.count} {repo.count === 1 ? 'contrib' : 'contribs'}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
