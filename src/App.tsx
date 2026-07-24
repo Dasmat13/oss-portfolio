@@ -199,6 +199,7 @@ interface RepoDetail {
 export default function App() {
   // Input settings
   const [username, setUsername] = useState(() => localStorage.getItem('oss_portfolio_username') || 'dasmat13');
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('oss_portfolio_dark_mode') === 'true');
   const [token, setToken] = useState(() => localStorage.getItem('oss_portfolio_token') || '');
   const [showConfig, setShowConfig] = useState(false);
   const [tempUsername, setTempUsername] = useState(username);
@@ -369,6 +370,24 @@ export default function App() {
   useEffect(() => {
     loadPortfolioData(username, token);
   }, [username, token]);
+
+  // Handle dark mode theme class
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('oss_portfolio_dark_mode', String(darkMode));
+  }, [darkMode]);
+
+  // Handle global page-level filter classes
+  useEffect(() => {
+    document.documentElement.classList.remove('page-filter-punk-collage', 'page-filter-dithered-1bit', 'page-filter-cmyk-dots');
+    if (avatarFilter !== 'none') {
+      document.documentElement.classList.add(`page-filter-${avatarFilter}`);
+    }
+  }, [avatarFilter]);
 
   // Handle setting updates
   const handleSaveConfig = (e: React.FormEvent) => {
@@ -584,6 +603,14 @@ export default function App() {
             </button>
             <button className="btn-primary" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }} onClick={() => loadPortfolioData(username, token)} title="Refresh data">
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            </button>
+            <button 
+              className="btn-primary" 
+              style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', padding: '0 12px', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
+              onClick={() => setDarkMode(!darkMode)} 
+              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {darkMode ? '☀️' : '🌙'}
             </button>
           </div>
         </div>
