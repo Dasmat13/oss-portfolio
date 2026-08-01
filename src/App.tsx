@@ -662,40 +662,6 @@ export default function App() {
 
           <div className="config-section">
             <a 
-              href={`https://devstats.cluster.fun/?user=${username}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn-primary"
-              style={{ 
-                background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', 
-                color: '#ffffff', 
-                fontWeight: '600', 
-                border: 'none',
-                textDecoration: 'none'
-              }}
-              title="View CNCF DevStats Score"
-            >
-              <Sparkles size={14} fill="#ffffff" />
-              <span>DevStats: {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}</span>
-            </a>
-            <a 
-              href={linkedinUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn-primary"
-              style={{ 
-                background: 'linear-gradient(135deg, #0a66c2, #004182)', 
-                color: '#ffffff', 
-                fontWeight: '600', 
-                border: 'none',
-                textDecoration: 'none'
-              }}
-              title="LinkedIn Profile"
-            >
-              <LinkedinIcon size={14} fill="#ffffff" />
-              <span>LinkedIn</span>
-            </a>
-            <a 
               href="https://github.com/Dasmat13/oss-portfolio" 
               target="_blank" 
               rel="noopener noreferrer" 
