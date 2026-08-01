@@ -24,6 +24,24 @@ import {
 import './App.css';
 import { fetchAllSearchResults } from './github-search';
 
+const LinkedinIcon: React.FC<{ size?: number; fill?: string; style?: React.CSSProperties; className?: string }> = ({
+  size = 14,
+  fill = 'currentColor',
+  style,
+  className
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={fill}
+    style={{ display: 'inline-block', verticalAlign: 'middle', ...style }}
+    className={className}
+  >
+    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28z" />
+  </svg>
+);
+
 // Fallbacks for popular repositories the developer contributes to.
 // This prevents unnecessary API hits on first load.
 const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: number; description?: string }> = {
@@ -201,9 +219,11 @@ export default function App() {
   const [username, setUsername] = useState(() => localStorage.getItem('oss_portfolio_username') || 'dasmat13');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('oss_portfolio_dark_mode') === 'true');
   const [token, setToken] = useState(() => localStorage.getItem('oss_portfolio_token') || '');
+  const [linkedinUrl, setLinkedinUrl] = useState(() => localStorage.getItem('oss_portfolio_linkedin') || 'https://linkedin.com/in/dasmat13');
   const [showConfig, setShowConfig] = useState(false);
   const [tempUsername, setTempUsername] = useState(username);
   const [tempToken, setTempToken] = useState(token);
+  const [tempLinkedinUrl, setTempLinkedinUrl] = useState(linkedinUrl);
 
   // Loaded data state
   const [loading, setLoading] = useState(false);
@@ -394,8 +414,10 @@ export default function App() {
     e.preventDefault();
     localStorage.setItem('oss_portfolio_username', tempUsername);
     localStorage.setItem('oss_portfolio_token', tempToken);
+    localStorage.setItem('oss_portfolio_linkedin', tempLinkedinUrl);
     setUsername(tempUsername);
     setToken(tempToken);
+    setLinkedinUrl(tempLinkedinUrl);
     setShowConfig(false);
   };
 
@@ -582,6 +604,23 @@ export default function App() {
 
           <div className="config-section">
             <a 
+              href={linkedinUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn-primary"
+              style={{ 
+                background: 'linear-gradient(135deg, #0a66c2, #004182)', 
+                color: '#ffffff', 
+                fontWeight: '600', 
+                border: 'none',
+                textDecoration: 'none'
+              }}
+              title="LinkedIn Profile"
+            >
+              <LinkedinIcon size={14} fill="#ffffff" />
+              <span>LinkedIn</span>
+            </a>
+            <a 
               href="https://github.com/Dasmat13/oss-portfolio" 
               target="_blank" 
               rel="noopener noreferrer" 
@@ -661,6 +700,22 @@ export default function App() {
                     value={tempToken}
                     onChange={(e) => setTempToken(e.target.value)}
                     placeholder="ghp_xxxxxxxxxxxx"
+                    style={{ width: '100%', flex: 1 }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ flex: 1, minWidth: '220px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
+                  LinkedIn Profile URL - Optional
+                </label>
+                <div className="input-group" style={{ width: '100%' }}>
+                  <LinkedinIcon size={16} style={{ color: 'var(--text-muted)' }} />
+                  <input
+                    type="url"
+                    value={tempLinkedinUrl}
+                    onChange={(e) => setTempLinkedinUrl(e.target.value)}
+                    placeholder="https://linkedin.com/in/your-profile"
                     style={{ width: '100%', flex: 1 }}
                   />
                 </div>
@@ -747,6 +802,14 @@ export default function App() {
                       <Link2 size={13} />
                       <a href={profile.blog.startsWith('http') ? profile.blog : `https://${profile.blog}`} target="_blank" rel="noreferrer">
                         {profile.blog}
+                      </a>
+                    </div>
+                  )}
+                  {linkedinUrl && (
+                    <div className="profile-meta-item">
+                      <LinkedinIcon size={13} fill="#0a66c2" style={{ color: '#0a66c2' }} />
+                      <a href={linkedinUrl} target="_blank" rel="noreferrer">
+                        LinkedIn
                       </a>
                     </div>
                   )}
@@ -1290,6 +1353,14 @@ export default function App() {
             <a href={`https://github.com/${username}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>
               @{username}
             </a>
+            {linkedinUrl && (
+              <>
+                {' '}·{' '}
+                <a href={linkedinUrl} target="_blank" rel="noreferrer" style={{ color: '#0a66c2', fontWeight: 600 }}>
+                  LinkedIn Profile
+                </a>
+              </>
+            )}
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
             Built using GitHub Search API · Live tracking of merged code, active pull requests, and ongoing issues.
