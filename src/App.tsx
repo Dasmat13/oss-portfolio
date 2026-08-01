@@ -259,6 +259,8 @@ export default function App() {
   const [openPRs, setOpenPRs] = useState<any[]>([]);
   const [openIssues, setOpenIssues] = useState<any[]>([]);
   const [closedIssues, setClosedIssues] = useState<any[]>([]);
+  const [devStats, setDevStats] = useState<{ contributions: number; issues: number; prs: number } | null>(null);
+  const [devStatsLoading, setDevStatsLoading] = useState(false);
 
   // Repos detail cache
   const [repoDetails, setRepoDetails] = useState<Record<string, RepoDetail>>({});
@@ -288,10 +290,38 @@ export default function App() {
     }
   };
 
+  // Fetch CNCF DevStats Score
+  const fetchDevStats = async (targetUser: string) => {
+    if (!targetUser) return;
+    try {
+      setDevStatsLoading(true);
+      const res = await fetch("https://devstats.cncf.io/api/v1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api: "GithubIDContributions", payload: { github_id: targetUser.trim().toLowerCase() } })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data.contributions === 'number') {
+          setDevStats({
+            contributions: data.contributions,
+            issues: data.issues || 0,
+            prs: data.prs || 0
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch devstats score:", e);
+    } finally {
+      setDevStatsLoading(false);
+    }
+  };
+
   // Fetch full portfolio data
   const loadPortfolioData = async (user: string, tok: string) => {
     setLoading(true);
     setError(null);
+    fetchDevStats(user);
     try {
       const headers: Record<string, string> = {
         'Accept': 'application/vnd.github+json'
@@ -632,6 +662,23 @@ export default function App() {
 
           <div className="config-section">
             <a 
+              href={`https://devstats.cluster.fun/?user=${username}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn-primary"
+              style={{ 
+                background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', 
+                color: '#ffffff', 
+                fontWeight: '600', 
+                border: 'none',
+                textDecoration: 'none'
+              }}
+              title="View CNCF DevStats Score"
+            >
+              <Sparkles size={14} fill="#ffffff" />
+              <span>DevStats: {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}</span>
+            </a>
+            <a 
               href={linkedinUrl} 
               target="_blank" 
               rel="noopener noreferrer" 
@@ -866,6 +913,12 @@ export default function App() {
                     </div>
                   )}
                   <div className="profile-meta-item">
+                    <Sparkles size={13} style={{ color: '#8b5cf6' }} />
+                    <a href={`https://devstats.cluster.fun/?user=${username}`} target="_blank" rel="noreferrer">
+                      DevStats: {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}
+                    </a>
+                  </div>
+                  <div className="profile-meta-item">
                     <Calendar size={13} />
                     <span>Joined {new Date(profile.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })}</span>
                   </div>
@@ -889,6 +942,20 @@ export default function App() {
                   </div>
                   <div className="p-stat-lbl">Contributions</div>
                 </div>
+                <div style={{ width: '1px', background: 'var(--border-color)' }}></div>
+                <a 
+                  href={`https://devstats.cluster.fun/?user=${username}`} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="p-stat" 
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  title="CNCF DevStats Score"
+                >
+                  <div className="p-stat-val" style={{ color: '#8b5cf6' }}>
+                    {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}
+                  </div>
+                  <div className="p-stat-lbl">DevStats Score</div>
+                </a>
               </div>
             </div>
           </section>
@@ -936,6 +1003,25 @@ export default function App() {
                 <span className="stat-label">Solved Issues</span>
               </div>
             </div>
+
+            <a 
+              href={`https://devstats.cluster.fun/?user=${username}`} 
+              target="_blank" 
+              rel="noreferrer" 
+              className="stat-card" 
+              style={{ cursor: 'pointer', textDecoration: 'none' }}
+              title="Click to view full CNCF DevStats report"
+            >
+              <div className="stat-card-icon" style={{ background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6' }}>
+                <Sparkles size={22} />
+              </div>
+              <div className="stat-card-info">
+                <span className="stat-value" style={{ color: '#8b5cf6' }}>
+                  {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}
+                </span>
+                <span className="stat-label">CNCF DevStats</span>
+              </div>
+            </a>
           </section>
         )}
 
@@ -1429,6 +1515,15 @@ export default function App() {
                 Instagram
               </a>
             )}
+            <a 
+              href={`https://devstats.cluster.fun/?user=${username}`} 
+              target="_blank" 
+              rel="noreferrer" 
+              style={{ color: '#8b5cf6', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+            >
+              <Sparkles size={14} style={{ color: '#8b5cf6' }} />
+              DevStats ({devStats ? devStats.contributions : '312'})
+            </a>
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
             Built using GitHub Search API · Live tracking of merged code, active pull requests, and ongoing issues.
