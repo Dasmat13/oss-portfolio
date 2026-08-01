@@ -42,6 +42,30 @@ const LinkedinIcon: React.FC<{ size?: number; fill?: string; style?: React.CSSPr
   </svg>
 );
 
+const InstagramIcon: React.FC<{ size?: number; fill?: string; style?: React.CSSProperties; className?: string }> = ({
+  size = 14,
+  fill = 'none',
+  style,
+  className
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={fill}
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ display: 'inline-block', verticalAlign: 'middle', ...style }}
+    className={className}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
 // Fallbacks for popular repositories the developer contributes to.
 // This prevents unnecessary API hits on first load.
 const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: number; description?: string }> = {
@@ -219,11 +243,13 @@ export default function App() {
   const [username, setUsername] = useState(() => localStorage.getItem('oss_portfolio_username') || 'dasmat13');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('oss_portfolio_dark_mode') === 'true');
   const [token, setToken] = useState(() => localStorage.getItem('oss_portfolio_token') || '');
-  const [linkedinUrl, setLinkedinUrl] = useState(() => localStorage.getItem('oss_portfolio_linkedin') || 'https://linkedin.com/in/dasmat13');
+  const [linkedinUrl, setLinkedinUrl] = useState(() => localStorage.getItem('oss_portfolio_linkedin') || 'https://www.linkedin.com/in/dasmat-hansda-591625324');
+  const [instagramUrl, setInstagramUrl] = useState(() => localStorage.getItem('oss_portfolio_instagram') || '');
   const [showConfig, setShowConfig] = useState(false);
   const [tempUsername, setTempUsername] = useState(username);
   const [tempToken, setTempToken] = useState(token);
   const [tempLinkedinUrl, setTempLinkedinUrl] = useState(linkedinUrl);
+  const [tempInstagramUrl, setTempInstagramUrl] = useState(instagramUrl);
 
   // Loaded data state
   const [loading, setLoading] = useState(false);
@@ -415,9 +441,11 @@ export default function App() {
     localStorage.setItem('oss_portfolio_username', tempUsername);
     localStorage.setItem('oss_portfolio_token', tempToken);
     localStorage.setItem('oss_portfolio_linkedin', tempLinkedinUrl);
+    localStorage.setItem('oss_portfolio_instagram', tempInstagramUrl);
     setUsername(tempUsername);
     setToken(tempToken);
     setLinkedinUrl(tempLinkedinUrl);
+    setInstagramUrl(tempInstagramUrl);
     setShowConfig(false);
   };
 
@@ -721,6 +749,22 @@ export default function App() {
                 </div>
               </div>
 
+              <div style={{ flex: 1, minWidth: '220px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
+                  Instagram Profile URL - Optional
+                </label>
+                <div className="input-group" style={{ width: '100%' }}>
+                  <InstagramIcon size={16} style={{ color: 'var(--text-muted)' }} />
+                  <input
+                    type="url"
+                    value={tempInstagramUrl}
+                    onChange={(e) => setTempInstagramUrl(e.target.value)}
+                    placeholder="https://instagram.com/your-handle"
+                    style={{ width: '100%', flex: 1 }}
+                  />
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button type="submit" className="btn-primary">
                   <Check size={14} />
@@ -808,8 +852,16 @@ export default function App() {
                   {linkedinUrl && (
                     <div className="profile-meta-item">
                       <LinkedinIcon size={13} fill="#0a66c2" style={{ color: '#0a66c2' }} />
-                      <a href={linkedinUrl} target="_blank" rel="noreferrer">
+                      <a href={linkedinUrl.startsWith('http') ? linkedinUrl : `https://${linkedinUrl}`} target="_blank" rel="noreferrer">
                         LinkedIn
+                      </a>
+                    </div>
+                  )}
+                  {instagramUrl && (
+                    <div className="profile-meta-item">
+                      <InstagramIcon size={13} style={{ color: '#e1306c' }} />
+                      <a href={instagramUrl.startsWith('http') ? instagramUrl : `https://${instagramUrl}`} target="_blank" rel="noreferrer">
+                        Instagram
                       </a>
                     </div>
                   )}
@@ -1348,18 +1400,34 @@ export default function App() {
 
       <footer className="app-footer">
         <div className="container">
-          <p>
-            GitHub Contribution Showcase © {new Date().getFullYear()} · Developed for{' '}
-            <a href={`https://github.com/${username}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>
-              @{username}
-            </a>
+          <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', margin: 0 }}>
+            <span>
+              GitHub Contribution Showcase © {new Date().getFullYear()} · Developed for{' '}
+              <a href={`https://github.com/${username}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                @{username}
+              </a>
+            </span>
             {linkedinUrl && (
-              <>
-                {' '}·{' '}
-                <a href={linkedinUrl} target="_blank" rel="noreferrer" style={{ color: '#0a66c2', fontWeight: 600 }}>
-                  LinkedIn Profile
-                </a>
-              </>
+              <a 
+                href={linkedinUrl.startsWith('http') ? linkedinUrl : `https://${linkedinUrl}`} 
+                target="_blank" 
+                rel="noreferrer" 
+                style={{ color: '#0a66c2', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              >
+                <LinkedinIcon size={14} fill="#0a66c2" />
+                LinkedIn
+              </a>
+            )}
+            {instagramUrl && (
+              <a 
+                href={instagramUrl.startsWith('http') ? instagramUrl : `https://${instagramUrl}`} 
+                target="_blank" 
+                rel="noreferrer" 
+                style={{ color: '#e1306c', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              >
+                <InstagramIcon size={14} style={{ color: '#e1306c' }} />
+                Instagram
+              </a>
             )}
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
