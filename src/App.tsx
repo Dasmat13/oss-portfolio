@@ -168,25 +168,25 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
   'Dasmat13/oss-portfolio': {
     language: 'TypeScript',
     color: '#3178c6',
-    stars: 100,
+    stars: 2,
     description: 'A real-time developer showcase dashboard'
   },
   'Dasmat13/kubecorrelate': {
     language: 'Go',
     color: '#00ADD8',
-    stars: 12,
+    stars: 5,
     description: 'A unified CNCF-grade CLI debug stream for container logs, Kubernetes events, config updates, and node pressures.'
   },
   'Dasmat13/kubectl-tripwire': {
     language: 'Go',
     color: '#00ADD8',
-    stars: 24,
+    stars: 0,
     description: 'Admission Webhook Failure-Chain Analyzer for Kubernetes. Maps webhook dependencies and identifies concrete failure paths blocking API requests.'
   },
   'Dasmat13/cropdesk': {
     language: 'JavaScript',
     color: '#f1e05a',
-    stars: 40,
+    stars: 0,
     description: 'Agricultural peer-to-peer marketplace eliminating intermediary agents to boost farmer income.'
   }
 };
@@ -390,35 +390,22 @@ export default function App() {
       const fetchQueue: string[] = [];
 
       for (const repo of uniqueRepos) {
-        if (REPO_FALLBACKS[repo]) {
-          detailsMap[repo] = {
-            language: REPO_FALLBACKS[repo].language,
-            color: REPO_FALLBACKS[repo].color,
-            stars: REPO_FALLBACKS[repo].stars,
-            description: REPO_FALLBACKS[repo].description || ''
-          };
-        } else {
-          const cached = localStorage.getItem(`repo_cache_${repo}`);
-          if (cached) {
-            try {
-              const parsed = JSON.parse(cached);
-              if (
-                parsed &&
-                parsed.data &&
-                typeof parsed.timestamp === 'number' &&
-                Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000
-              ) {
-                detailsMap[repo] = parsed.data;
-              } else {
-                fetchQueue.push(repo);
-              }
-            } catch (e) {
-              fetchQueue.push(repo);
+        const cached = localStorage.getItem(`repo_cache_${repo}`);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            if (
+              parsed &&
+              parsed.data &&
+              typeof parsed.timestamp === 'number' &&
+              Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000
+            ) {
+              detailsMap[repo] = parsed.data;
+              continue;
             }
-          } else {
-            fetchQueue.push(repo);
-          }
+          } catch (e) {}
         }
+        fetchQueue.push(repo);
       }
 
       // Fetch outstanding repo details (limit parallel fetches to prevent immediately hitting rate limit)
@@ -438,10 +425,22 @@ export default function App() {
               localStorage.setItem(`repo_cache_${repo}`, JSON.stringify({ data: detail, timestamp: Date.now() }));
               detailsMap[repo] = detail;
             } else {
-              detailsMap[repo] = { language: 'Markdown', color: '#083fa1', stars: 0, description: '' };
+              const fallback = REPO_FALLBACKS[repo] || { language: 'Markdown', color: '#083fa1', stars: 0, description: '' };
+              detailsMap[repo] = {
+                language: fallback.language,
+                color: fallback.color,
+                stars: fallback.stars,
+                description: fallback.description || ''
+              };
             }
           } catch (e) {
-            detailsMap[repo] = { language: 'Markdown', color: '#083fa1', stars: 0, description: '' };
+            const fallback = REPO_FALLBACKS[repo] || { language: 'Markdown', color: '#083fa1', stars: 0, description: '' };
+            detailsMap[repo] = {
+              language: fallback.language,
+              color: fallback.color,
+              stars: fallback.stars,
+              description: fallback.description || ''
+            };
           }
         })
       );
@@ -1281,15 +1280,15 @@ export default function App() {
                               <span className="stat-mini-lbl">GitHub Stars</span>
                             </div>
                             <div className="stat-mini-item">
-                              <span className="stat-mini-val">📥 1,420+</span>
+                              <span className="stat-mini-val">📥 100+</span>
                               <span className="stat-mini-lbl">Plugin Downloads</span>
                             </div>
                             <div className="stat-mini-item">
-                              <span className="stat-mini-val">💬 48</span>
+                              <span className="stat-mini-val">💬 32</span>
                               <span className="stat-mini-lbl">Reviews Received</span>
                             </div>
                             <div className="stat-mini-item">
-                              <span className="stat-mini-val">👥 12</span>
+                              <span className="stat-mini-val">👥 2</span>
                               <span className="stat-mini-lbl">Contributors</span>
                             </div>
                           </div>
@@ -1303,37 +1302,28 @@ export default function App() {
                               <div className="loc-row">
                                 <div className="loc-info">
                                   <span className="loc-name">Go</span>
-                                  <span className="loc-count">82,400 LOC (71%)</span>
+                                  <span className="loc-count">5,969 LOC (58%)</span>
                                 </div>
                                 <div className="loc-progress">
-                                  <div className="loc-progress-fill" style={{ width: '71%', backgroundColor: '#00ADD8' }}></div>
+                                  <div className="loc-progress-fill" style={{ width: '58%', backgroundColor: '#00ADD8' }}></div>
                                 </div>
                               </div>
                               <div className="loc-row">
                                 <div className="loc-info">
                                   <span className="loc-name">TypeScript</span>
-                                  <span className="loc-count">20,100 LOC (17%)</span>
+                                  <span className="loc-count">3,124 LOC (31%)</span>
                                 </div>
                                 <div className="loc-progress">
-                                  <div className="loc-progress-fill" style={{ width: '17%', backgroundColor: '#3178c6' }}></div>
+                                  <div className="loc-progress-fill" style={{ width: '31%', backgroundColor: '#3178c6' }}></div>
                                 </div>
                               </div>
                               <div className="loc-row">
                                 <div className="loc-info">
                                   <span className="loc-name">JavaScript</span>
-                                  <span className="loc-count">10,500 LOC (9%)</span>
+                                  <span className="loc-count">1,120 LOC (11%)</span>
                                 </div>
                                 <div className="loc-progress">
-                                  <div className="loc-progress-fill" style={{ width: '9%', backgroundColor: '#f1e05a' }}></div>
-                                </div>
-                              </div>
-                              <div className="loc-row">
-                                <div className="loc-info">
-                                  <span className="loc-name">Python</span>
-                                  <span className="loc-count">3,200 LOC (3%)</span>
-                                </div>
-                                <div className="loc-progress">
-                                  <div className="loc-progress-fill" style={{ width: '3%', backgroundColor: '#3572A5' }}></div>
+                                  <div className="loc-progress-fill" style={{ width: '11%', backgroundColor: '#f1e05a' }}></div>
                                 </div>
                               </div>
                             </div>
