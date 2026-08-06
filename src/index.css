@@ -1525,4 +1525,231 @@ html.page-filter-cmyk-dots.dark::after {
   opacity: 0.7 !important;
 }
 
+/* Portfolio Custom Features styling */
+.achievements-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.achievement-card {
+  background: #ffffff;
+  border: var(--border-width) solid #000000;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 4px 4px 0px #000000;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.achievement-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.achievement-icon {
+  font-size: 1.5rem;
+}
+
+.achievement-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.achievement-title {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #000000;
+  text-transform: uppercase;
+}
+
+.achievement-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.featured-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.featured-project-item {
+  border: var(--border-width) solid #000000;
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 3px 3px 0px #000000;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.featured-project-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.project-lang-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  border: 1.5px solid #000000;
+  padding: 1px 6px;
+  border-radius: 4px;
+  box-shadow: 1px 1px 0px #000000;
+  color: #000000;
+}
+
+.project-lang-badge.go { background-color: #00ADD8; }
+.project-lang-badge.js { background-color: #f1e05a; }
+
+.project-description {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.project-stat-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.project-link {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-decoration: none;
+}
+.project-link:hover {
+  text-decoration: underline;
+}
+
+.stats-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat-mini-item {
+  border: var(--border-width) solid #000000;
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.01);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.stat-mini-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.stat-mini-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.loc-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loc-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loc-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.loc-progress {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid #000000;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.loc-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* Dark mode overrides */
+.dark .achievement-card {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  box-shadow: 4px 4px 0px var(--border-color);
+}
+.dark .achievement-card:hover {
+  box-shadow: 5px 5px 0px var(--border-color);
+}
+.dark .achievement-title {
+  color: var(--text-primary);
+}
+.dark .featured-project-item {
+  border-color: var(--border-color);
+  box-shadow: 3px 3px 0px var(--border-color);
+}
+.dark .featured-project-item:hover {
+  box-shadow: 5px 5px 0px var(--border-color);
+}
+.dark .project-lang-badge {
+  border-color: var(--border-color);
+  box-shadow: 1px 1px 0px var(--border-color);
+}
+.dark .stat-mini-item {
+  border-color: var(--border-color);
+  box-shadow: 2px 2px 0px var(--border-color);
+}
+.dark .loc-progress {
+  border-color: var(--border-color);
+  box-shadow: 1px 1px 0px var(--border-color);
+}
+
+
 

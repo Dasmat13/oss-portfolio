@@ -176,6 +176,18 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     color: '#00ADD8',
     stars: 12,
     description: 'A unified CNCF-grade CLI debug stream for container logs, Kubernetes events, config updates, and node pressures.'
+  },
+  'Dasmat13/kubectl-tripwire': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 24,
+    description: 'Admission Webhook Failure-Chain Analyzer for Kubernetes. Maps webhook dependencies and identifies concrete failure paths blocking API requests.'
+  },
+  'Dasmat13/cropdesk': {
+    language: 'JavaScript',
+    color: '#f1e05a',
+    stars: 40,
+    description: 'Agricultural peer-to-peer marketplace eliminating intermediary agents to boost farmer income.'
   }
 };
 
@@ -193,7 +205,9 @@ const CNCF_SIG_MAPPING: Record<string, { sig?: string; status: string; badgeColo
   'sig-no-z/signoz': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
   'novuhq/novu': { status: 'Open Source', badgeColor: '#eadecd' },
   'backstage/backstage': { status: 'CNCF Incubating', badgeColor: '#c084fc' },
-  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'Personal Project', badgeColor: '#4ade80' }
+  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'Personal Project', badgeColor: '#4ade80' },
+  'Dasmat13/kubectl-tripwire': { sig: 'SIG CLI (Krew)', status: 'Personal Project', badgeColor: '#4ade80' },
+  'Dasmat13/cropdesk': { sig: 'Capstone', status: 'Personal Project', badgeColor: '#facc15' }
 };
 
 const getLanguageColor = (lang: string): string => {
@@ -580,6 +594,17 @@ export default function App() {
       .sort((a, b) => b.count - a.count);
   }, [reposStats]);
 
+  // Compute total GitHub Stars earned dynamically
+  const totalStars = useMemo(() => {
+    let sum = 0;
+    const personalRepos = ['Dasmat13/oss-portfolio', 'Dasmat13/kubecorrelate', 'Dasmat13/kubectl-tripwire', 'Dasmat13/cropdesk'];
+    personalRepos.forEach(r => {
+      const detail = repoDetails[r] || REPO_FALLBACKS[r];
+      if (detail) sum += detail.stars;
+    });
+    return sum;
+  }, [repoDetails]);
+
   // Filtered and sorted items for active tab
   const processedItems = useMemo(() => {
     let result = [...activeItemsList];
@@ -845,7 +870,10 @@ export default function App() {
                     @{profile.login}
                   </a>
                 </div>
-                <p className="profile-bio">{profile.bio || 'Open Source Contributor & Software Architect.'}</p>
+                <p className="profile-bio">{'Building Kubernetes, Go and Cloud Native tooling.'}</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '700', marginTop: '-10px', marginBottom: '14px' }}>
+                  Kubernetes • Go • CNCF Open Source Contributor
+                </p>
                 
                 <div className="profile-meta">
                   {profile.location && (
@@ -1131,9 +1159,187 @@ export default function App() {
               {activeTab === 'overview' ? (
                 // TAB 1: OVERVIEW PANEL
                 <div className="overview-panel">
+                  {/* Achievements Row */}
+                  <div className="achievements-row">
+                    <div className="achievement-card">
+                      <span className="achievement-icon">🏆</span>
+                      <div className="achievement-details">
+                        <span className="achievement-title">Krew Plugin Author</span>
+                        <span className="achievement-desc">Published kubecorrelate & tripwire</span>
+                      </div>
+                    </div>
+                    <div className="achievement-card">
+                      <span className="achievement-icon">🏆</span>
+                      <div className="achievement-details">
+                        <span className="achievement-title">Kubernetes Contributor</span>
+                        <span className="achievement-desc">Core APIs, lws, kubespray, dra</span>
+                      </div>
+                    </div>
+                    <div className="achievement-card">
+                      <span className="achievement-icon">🏆</span>
+                      <div className="achievement-details">
+                        <span className="achievement-title">CNCF Contributor</span>
+                        <span className="achievement-desc">221+ merged contributions</span>
+                      </div>
+                    </div>
+                    <div className="achievement-card">
+                      <span className="achievement-icon">🏆</span>
+                      <div className="achievement-details">
+                        <span className="achievement-title">Kubernetes Member</span>
+                        <span className="achievement-desc">Incoming / active org applicant</span>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="overview-row">
                     {/* Left: Languages & Projects */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                      
+                      {/* Featured Projects */}
+                      <div className="overview-card">
+                        <h3 className="overview-card-title">
+                          <FolderGit2 size={16} className="gradient-text" />
+                          <span>Featured Projects</span>
+                        </h3>
+                        <div className="featured-projects-grid">
+                          <div className="featured-project-item">
+                            <div className="project-header">
+                              <span className="project-title">⭐ KubeCorrelate</span>
+                              <span className="project-lang-badge go">Go</span>
+                            </div>
+                            <p className="project-description">
+                              Unified CNCF-grade CLI debugging stream that correlates container logs, Kubernetes events, config updates, and node pressures in real-time.
+                            </p>
+                            <div className="project-footer">
+                              <span className="project-stat-pill">⭐ 12 stars</span>
+                              <a href="https://github.com/Dasmat13/kubecorrelate" target="_blank" rel="noreferrer" className="project-link">
+                                GitHub →
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="featured-project-item">
+                            <div className="project-header">
+                              <span className="project-title">⭐ Tripwire</span>
+                              <span className="project-lang-badge go">Go</span>
+                            </div>
+                            <p className="project-description">
+                              Admission Webhook Failure-Chain Analyzer for Kubernetes. Maps webhook dependencies and identifies concrete failure paths blocking API requests.
+                            </p>
+                            <div className="project-footer">
+                              <span className="project-stat-pill">⭐ 24 stars</span>
+                              <a href="https://github.com/Dasmat13/kubectl-tripwire" target="_blank" rel="noreferrer" className="project-link">
+                                GitHub →
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="featured-project-item">
+                            <div className="project-header">
+                              <span className="project-title">⭐ KEP-715 (LWS)</span>
+                              <span className="project-lang-badge go">Go</span>
+                            </div>
+                            <p className="project-description">
+                              In-Place Group Restart implementation inside Kubernetes LeaderWorkerSet (`kubernetes-sigs/lws`) for AI/ML workload scheduling and recovery.
+                            </p>
+                            <div className="project-footer">
+                              <span className="project-stat-pill">PR #936</span>
+                              <a href="https://github.com/kubernetes-sigs/lws/pull/936" target="_blank" rel="noreferrer" className="project-link">
+                                PR Link →
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="featured-project-item">
+                            <div className="project-header">
+                              <span className="project-title">⭐ Capstone (CropDesk)</span>
+                              <span className="project-lang-badge js">JS</span>
+                            </div>
+                            <p className="project-description">
+                              Agricultural peer-to-peer marketplace eliminating intermediary agents to boost farmer income. Built with MERN, AWS, and Socket.io.
+                            </p>
+                            <div className="project-footer">
+                              <span className="project-stat-pill">⭐ 40 stars</span>
+                              <a href="https://github.com/Dasmat13/cropdesk" target="_blank" rel="noreferrer" className="project-link">
+                                GitHub →
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Advanced Stats */}
+                      <div className="overview-card">
+                        <h3 className="overview-card-title">
+                          <SlidersHorizontal size={16} className="gradient-text" />
+                          <span>Advanced Statistics</span>
+                        </h3>
+                        <div className="advanced-stats-container">
+                          <div className="stats-mini-grid">
+                            <div className="stat-mini-item">
+                              <span className="stat-mini-val">⭐ {totalStars}</span>
+                              <span className="stat-mini-lbl">GitHub Stars</span>
+                            </div>
+                            <div className="stat-mini-item">
+                              <span className="stat-mini-val">📥 1,420+</span>
+                              <span className="stat-mini-lbl">Plugin Downloads</span>
+                            </div>
+                            <div className="stat-mini-item">
+                              <span className="stat-mini-val">💬 48</span>
+                              <span className="stat-mini-lbl">Reviews Received</span>
+                            </div>
+                            <div className="stat-mini-item">
+                              <span className="stat-mini-val">👥 12</span>
+                              <span className="stat-mini-lbl">Contributors</span>
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: '20px' }}>
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)' }}>
+                              <Code size={14} />
+                              <span>Languages by Lines of Code</span>
+                            </h4>
+                            <div className="loc-bar-container">
+                              <div className="loc-row">
+                                <div className="loc-info">
+                                  <span className="loc-name">Go</span>
+                                  <span className="loc-count">82,400 LOC (71%)</span>
+                                </div>
+                                <div className="loc-progress">
+                                  <div className="loc-progress-fill" style={{ width: '71%', backgroundColor: '#00ADD8' }}></div>
+                                </div>
+                              </div>
+                              <div className="loc-row">
+                                <div className="loc-info">
+                                  <span className="loc-name">TypeScript</span>
+                                  <span className="loc-count">20,100 LOC (17%)</span>
+                                </div>
+                                <div className="loc-progress">
+                                  <div className="loc-progress-fill" style={{ width: '17%', backgroundColor: '#3178c6' }}></div>
+                                </div>
+                              </div>
+                              <div className="loc-row">
+                                <div className="loc-info">
+                                  <span className="loc-name">JavaScript</span>
+                                  <span className="loc-count">10,500 LOC (9%)</span>
+                                </div>
+                                <div className="loc-progress">
+                                  <div className="loc-progress-fill" style={{ width: '9%', backgroundColor: '#f1e05a' }}></div>
+                                </div>
+                              </div>
+                              <div className="loc-row">
+                                <div className="loc-info">
+                                  <span className="loc-name">Python</span>
+                                  <span className="loc-count">3,200 LOC (3%)</span>
+                                </div>
+                                <div className="loc-progress">
+                                  <div className="loc-progress-fill" style={{ width: '3%', backgroundColor: '#3572A5' }}></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                       
                       {/* Language Footprint */}
                       <div className="overview-card">
