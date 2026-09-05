@@ -81,7 +81,7 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     stars: 108000, 
     description: 'Production-Grade Container Scheduling and Management' 
   },
-  'kubernetes/lws': { 
+  'kubernetes-sigs/lws': {
     language: 'Go', 
     color: '#00ADD8', 
     stars: 250, 
@@ -194,7 +194,7 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
 const CNCF_SIG_MAPPING: Record<string, { sig?: string; status: string; badgeColor: string }> = {
   'kubernetes/kubespray': { sig: 'SIG Cluster Lifecycle', status: 'Kubernetes Subproject', badgeColor: '#4ade80' },
   'kubernetes/kubernetes': { sig: 'Core K8s API', status: 'CNCF Graduated', badgeColor: '#38bdf8' },
-  'kubernetes/lws': { sig: 'SIG Multi-Cluster / Workloads', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/lws': { sig: 'SIG Multi-Cluster / Workloads', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
   'kubernetes-sigs/kubebuilder': { sig: 'SIG API Machinery', status: 'Kubernetes Subproject', badgeColor: '#c084fc' },
   'kubernetes-sigs/krew-index': { sig: 'SIG CLI', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
   'kubernetes-sigs/krew': { sig: 'SIG CLI', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
@@ -1244,6 +1244,22 @@ export default function App() {
                             <div className="project-footer">
                               <span className="project-stat-pill">PR #936</span>
                               <a href="https://github.com/kubernetes-sigs/lws/pull/936" target="_blank" rel="noreferrer" className="project-link">
+                                PR Link →
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="featured-project-item">
+                            <div className="project-header">
+                              <span className="project-title">⭐ Per-LWS Gang Scheduling</span>
+                              <span className="project-lang-badge go">Go</span>
+                            </div>
+                            <p className="project-description">
+                              Adds a canonical LeaderWorkerSet API for enabling or disabling PodGroup creation and scheduler metadata injection per workload.
+                            </p>
+                            <div className="project-footer">
+                              <span className="project-stat-pill">PR #935</span>
+                              <a href="https://github.com/kubernetes-sigs/lws/pull/935" target="_blank" rel="noreferrer" className="project-link">
                                 PR Link →
                               </a>
                             </div>
