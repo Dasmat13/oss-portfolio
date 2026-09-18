@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   GitMerge,
   GitPullRequest,
@@ -75,52 +75,166 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     stars: 15400, 
     description: 'Deploy a Production Ready Kubernetes Cluster' 
   },
+  'kubernetes-sigs/kubespray': { 
+    language: 'Python', 
+    color: '#3572A5', 
+    stars: 15400, 
+    description: 'Deploy a Production Ready Kubernetes Cluster' 
+  },
   'kubernetes/kubernetes': { 
     language: 'Go', 
     color: '#00ADD8', 
     stars: 108000, 
     description: 'Production-Grade Container Scheduling and Management' 
   },
+  'kubernetes-sigs/kueue': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 1300,
+    description: 'Kubernetes-native Job Queueing and Batch Scheduling'
+  },
   'kubernetes-sigs/lws': {
     language: 'Go', 
     color: '#00ADD8', 
-    stars: 250, 
+    stars: 270, 
     description: 'LeaderWorkerSet - API for deploying multi-node workloads' 
+  },
+  'kubernetes-sigs/kubebuilder': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 4000,
+    description: 'Custom Resource Definitions & Controller runtime tooling'
+  },
+  'kubernetes-sigs/karpenter': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 6200,
+    description: 'Kubernetes Node Auto-scaler built for flex workloads'
+  },
+  'karpenter/karpenter': { 
+    language: 'Go', 
+    color: '#00ADD8', 
+    stars: 6200, 
+    description: 'Karpenter is a Kubernetes Node Auto-scaler built for AWS' 
+  },
+  'kubernetes-sigs/krew-index': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 1200,
+    description: 'Package index for kubectl plugins'
+  },
+  'kubernetes-sigs/krew': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 3400,
+    description: 'Package manager for kubectl plugins'
+  },
+  'kubernetes-sigs/dra-driver-cpu': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 50,
+    description: 'Dynamic Resource Allocation (DRA) driver for CPU'
+  },
+  'kubernetes-sigs/kube-agentic-networking': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 150,
+    description: 'Declarative traffic interception and policy routing for Kubernetes'
+  },
+  'kubernetes-sigs/aws-load-balancer-controller': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 4800,
+    description: 'AWS Load Balancer Controller for Kubernetes'
+  },
+  'kubernetes-sigs/cluster-api-provider-vsphere': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 950,
+    description: 'Kubernetes Cluster API Provider for VMware vSphere'
+  },
+  'kubernetes-sigs/external-dns': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 7600,
+    description: 'Configure external DNS servers for Kubernetes Ingresses and Services'
+  },
+  'kubernetes-sigs/node-readiness-controller': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 100,
+    description: 'Controller managing node readiness conditions in Kubernetes'
+  },
+  'kubernetes-sigs/kube-api-linter': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 150,
+    description: 'Linter for Kubernetes API conventions and design standards'
+  },
+  'kubernetes-sigs/container-object-storage-interface': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 300,
+    description: 'Container Object Storage Interface (COSI)'
+  },
+  'kubernetes/website': {
+    language: 'Markdown',
+    color: '#083fa1',
+    stars: 46000,
+    description: 'The Kubernetes documentation and website'
+  },
+  'argoproj/argo-cd': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 18500,
+    description: 'Declarative continuous deployment for Kubernetes'
+  },
+  'cilium/cilium': {
+    language: 'Go',
+    color: '#00ADD8',
+    stars: 21500,
+    description: 'eBPF-based Networking, Observability, and Security'
   },
   'prometheus-operator/prometheus-operator': { 
     language: 'Go', 
     color: '#00ADD8', 
-    stars: 9200, 
+    stars: 9500, 
     description: 'Prometheus Operator creates/configures/manages Prometheus clusters' 
   },
   'backstage/backstage': { 
     language: 'TypeScript', 
     color: '#3178c6', 
-    stars: 27500, 
+    stars: 28000, 
     description: 'Backstage is an open platform for building developer portals' 
   },
-  'karpenter/karpenter': { 
-    language: 'Go', 
-    color: '#00ADD8', 
-    stars: 5800, 
-    description: 'Karpenter is a Kubernetes Node Auto-scaler built for AWS' 
+  'backstage/community-plugins': {
+    language: 'TypeScript',
+    color: '#3178c6',
+    stars: 500,
+    description: 'Community plugins for Backstage developer portal'
   },
   'headlamp-k8s/headlamp': { 
     language: 'Go', 
     color: '#00ADD8', 
-    stars: 4500, 
+    stars: 4700, 
     description: 'An extensible Kubernetes web UI' 
   },
   'novuhq/novu': { 
     language: 'TypeScript', 
     color: '#3178c6', 
-    stars: 34000, 
+    stars: 34500, 
     description: 'Open-source notification infrastructure' 
+  },
+  'signoz/signoz': { 
+    language: 'Go', 
+    color: '#00ADD8', 
+    stars: 18000, 
+    description: 'SigNoz is an open-source Application Performance Monitoring tool' 
   },
   'sig-no-z/signoz': { 
     language: 'Go', 
     color: '#00ADD8', 
-    stars: 17500, 
+    stars: 18000, 
     description: 'SigNoz is an open-source Application Performance Monitoring tool' 
   },
   'facebook/stylex': { 
@@ -150,7 +264,7 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
   'helm/helm': { 
     language: 'Go', 
     color: '#00ADD8', 
-    stars: 26000, 
+    stars: 26500, 
     description: 'The Kubernetes Package Manager' 
   },
   'medusajs/medusa': { 
@@ -165,22 +279,28 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     stars: 2200, 
     description: 'My first repository on GitHub' 
   },
+  'knoxiboy/DoubtDesk': {
+    language: 'TypeScript',
+    color: '#3178c6',
+    stars: 25,
+    description: 'Collaborative educational doubt clearance platform'
+  },
   'Dasmat13/oss-portfolio': {
     language: 'TypeScript',
     color: '#3178c6',
-    stars: 2,
+    stars: 3,
     description: 'A real-time developer showcase dashboard'
   },
   'Dasmat13/kubecorrelate': {
     language: 'Go',
     color: '#00ADD8',
-    stars: 5,
+    stars: 6,
     description: 'A unified CNCF-grade CLI debug stream for container logs, Kubernetes events, config updates, and node pressures.'
   },
   'Dasmat13/kubectl-tripwire': {
     language: 'Go',
     color: '#00ADD8',
-    stars: 0,
+    stars: 1,
     description: 'Admission Webhook Failure-Chain Analyzer for Kubernetes. Maps webhook dependencies and identifies concrete failure paths blocking API requests.'
   },
   'Dasmat13/cropdesk': {
@@ -188,26 +308,60 @@ const REPO_FALLBACKS: Record<string, { language: string; color: string; stars: n
     color: '#f1e05a',
     stars: 0,
     description: 'Agricultural peer-to-peer marketplace eliminating intermediary agents to boost farmer income.'
+  },
+  'Dasmat13/git-world-action': {
+    language: 'TypeScript',
+    color: '#3178c6',
+    stars: 3,
+    description: 'Turn your GitHub contributions into a living, animated city SVG.'
+  },
+  'Dasmat13/recruit-me': {
+    language: 'HTML',
+    color: '#e34c26',
+    stars: 4,
+    description: 'Recruiter evaluation portfolio showcase.'
   }
 };
 
 const CNCF_SIG_MAPPING: Record<string, { sig?: string; status: string; badgeColor: string }> = {
   'kubernetes/kubespray': { sig: 'SIG Cluster Lifecycle', status: 'Kubernetes Subproject', badgeColor: '#4ade80' },
+  'kubernetes-sigs/kubespray': { sig: 'SIG Cluster Lifecycle', status: 'Kubernetes Subproject', badgeColor: '#4ade80' },
   'kubernetes/kubernetes': { sig: 'Core K8s API', status: 'CNCF Graduated', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/kueue': { sig: 'SIG Scheduling / Batch', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
   'kubernetes-sigs/lws': { sig: 'SIG Multi-Cluster / Workloads', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
   'kubernetes-sigs/kubebuilder': { sig: 'SIG API Machinery', status: 'Kubernetes Subproject', badgeColor: '#c084fc' },
   'kubernetes-sigs/krew-index': { sig: 'SIG CLI', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
   'kubernetes-sigs/krew': { sig: 'SIG CLI', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
-  'helm/helm': { status: 'CNCF Graduated', badgeColor: '#facc15' },
-  'prometheus-operator/prometheus-operator': { status: 'CNCF Graduated', badgeColor: '#f472b6' },
+  'kubernetes-sigs/karpenter': { sig: 'SIG Autoscaling', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
   'karpenter/karpenter': { sig: 'SIG Autoscaling', status: 'CNCF Incubating', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/dra-driver-cpu': { sig: 'SIG Node', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/kube-agentic-networking': { sig: 'SIG Network', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/aws-load-balancer-controller': { sig: 'SIG Cloud Provider (AWS)', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/cluster-api-provider-vsphere': { sig: 'SIG Cluster Lifecycle', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/external-dns': { sig: 'SIG Network', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/node-readiness-controller': { sig: 'SIG Node', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes-sigs/kube-api-linter': { sig: 'SIG API Machinery', status: 'Kubernetes Subproject', badgeColor: '#c084fc' },
+  'kubernetes-sigs/container-object-storage-interface': { sig: 'SIG Storage', status: 'Kubernetes Subproject', badgeColor: '#38bdf8' },
+  'kubernetes/website': { sig: 'SIG Docs', status: 'CNCF Graduated', badgeColor: '#38bdf8' },
+  'helm/helm': { status: 'CNCF Graduated', badgeColor: '#facc15' },
+  'cilium/cilium': { status: 'CNCF Graduated', badgeColor: '#facc15' },
+  'argoproj/argo-cd': { status: 'CNCF Graduated', badgeColor: '#facc15' },
+  'prometheus-operator/prometheus-operator': { status: 'CNCF Graduated', badgeColor: '#f472b6' },
+  'backstage/backstage': { status: 'CNCF Incubating', badgeColor: '#c084fc' },
+  'backstage/community-plugins': { status: 'CNCF Incubating', badgeColor: '#c084fc' },
   'headlamp-k8s/headlamp': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
+  'signoz/signoz': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
   'sig-no-z/signoz': { status: 'CNCF Sandbox', badgeColor: '#cbd5e1' },
   'novuhq/novu': { status: 'Open Source', badgeColor: '#eadecd' },
-  'backstage/backstage': { status: 'CNCF Incubating', badgeColor: '#c084fc' },
-  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'Personal Project', badgeColor: '#4ade80' },
-  'Dasmat13/kubectl-tripwire': { sig: 'SIG CLI (Krew)', status: 'Personal Project', badgeColor: '#4ade80' },
-  'Dasmat13/cropdesk': { sig: 'Capstone', status: 'Personal Project', badgeColor: '#facc15' }
+  'Azure/azure-firewall-egress-controller': { status: 'Open Source', badgeColor: '#0078d4' },
+  'Azure/kubectl-aks': { status: 'Open Source', badgeColor: '#0078d4' },
+  'knoxiboy/DoubtDesk': { status: 'Open Source', badgeColor: '#cbd5e1' },
+  'Dasmat13/kubecorrelate': { sig: 'SIG CLI (Krew)', status: 'Official Krew Plugin', badgeColor: '#4ade80' },
+  'Dasmat13/kubectl-tripwire': { sig: 'SIG CLI (Krew)', status: 'Official Krew Plugin', badgeColor: '#4ade80' },
+  'Dasmat13/cropdesk': { sig: 'Capstone', status: 'Published Paper', badgeColor: '#facc15' },
+  'Dasmat13/git-world-action': { status: 'Personal Project', badgeColor: '#4ade80' },
+  'Dasmat13/recruit-me': { status: 'Personal Project', badgeColor: '#4ade80' },
+  'Dasmat13/oss-portfolio': { status: 'Personal Project', badgeColor: '#4ade80' }
 };
 
 const getLanguageColor = (lang: string): string => {
@@ -403,7 +557,7 @@ export default function App() {
               detailsMap[repo] = parsed.data;
               continue;
             }
-          } catch (e) {}
+          } catch {}
         }
         fetchQueue.push(repo);
       }
@@ -433,7 +587,7 @@ export default function App() {
                 description: fallback.description || ''
               };
             }
-          } catch (e) {
+          } catch {
             const fallback = REPO_FALLBACKS[repo] || { language: 'Markdown', color: '#083fa1', stars: 0, description: '' };
             detailsMap[repo] = {
               language: fallback.language,
@@ -498,9 +652,9 @@ export default function App() {
   };
 
   // Helper: Get repo language
-  const getRepoLanguage = (repoName: string): string => {
+  const getRepoLanguage = useCallback((repoName: string): string => {
     return repoDetails[repoName]?.language || REPO_FALLBACKS[repoName]?.language || 'Markdown';
-  };
+  }, [repoDetails]);
 
   // Helper: Get repo stars
   const getRepoStars = (repoName: string): string => {
@@ -539,7 +693,7 @@ export default function App() {
         description: repoDetails[name]?.description ?? REPO_FALLBACKS[name]?.description ?? ''
       }))
       .sort((a, b) => b.count - a.count);
-  }, [mergedPRs, openPRs, openIssues, closedIssues, repoDetails]);
+  }, [mergedPRs, openPRs, openIssues, closedIssues, repoDetails, getRepoLanguage]);
 
   // Aggregate languages stats based on repository contributions
   const languagesStats = useMemo(() => {
@@ -596,7 +750,14 @@ export default function App() {
   // Compute total GitHub Stars earned dynamically
   const totalStars = useMemo(() => {
     let sum = 0;
-    const personalRepos = ['Dasmat13/oss-portfolio', 'Dasmat13/kubecorrelate', 'Dasmat13/kubectl-tripwire', 'Dasmat13/cropdesk'];
+    const personalRepos = [
+      'Dasmat13/oss-portfolio',
+      'Dasmat13/kubecorrelate',
+      'Dasmat13/kubectl-tripwire',
+      'Dasmat13/cropdesk',
+      'Dasmat13/git-world-action',
+      'Dasmat13/recruit-me'
+    ];
     personalRepos.forEach(r => {
       const detail = repoDetails[r] || REPO_FALLBACKS[r];
       if (detail) sum += detail.stars;
@@ -644,7 +805,7 @@ export default function App() {
     });
 
     return result;
-  }, [activeItemsList, searchTerm, selectedRepo, selectedLanguage, sortOrder, repoDetails]);
+  }, [activeItemsList, searchTerm, selectedRepo, selectedLanguage, sortOrder, getRepoLanguage]);
 
   // Timeline list for Overview Tab (Recent 10 activities)
   const recentActivityTimeline = useMemo(() => {
@@ -1171,21 +1332,21 @@ export default function App() {
                       <span className="achievement-icon">🏆</span>
                       <div className="achievement-details">
                         <span className="achievement-title">Kubernetes Contributor</span>
-                        <span className="achievement-desc">Core APIs, lws, kubespray, dra</span>
+                        <span className="achievement-desc">Kueue, lws, kubespray, dra, karpenter</span>
                       </div>
                     </div>
                     <div className="achievement-card">
                       <span className="achievement-icon">🏆</span>
                       <div className="achievement-details">
                         <span className="achievement-title">CNCF Contributor</span>
-                        <span className="achievement-desc">221+ merged contributions</span>
+                        <span className="achievement-desc">34+ k8s-sigs & 40+ CNCF merged contributions</span>
                       </div>
                     </div>
                     <div className="achievement-card">
                       <span className="achievement-icon">🏆</span>
                       <div className="achievement-details">
                         <span className="achievement-title">Kubernetes Member</span>
-                        <span className="achievement-desc">Incoming / active org applicant</span>
+                        <span className="achievement-desc">Active contributor & org applicant</span>
                       </div>
                     </div>
                   </div>
@@ -1210,7 +1371,7 @@ export default function App() {
                               Unified CNCF-grade CLI debugging stream that correlates container logs, Kubernetes events, config updates, and node pressures in real-time.
                             </p>
                             <div className="project-footer">
-                              <span className="project-stat-pill">⭐ 12 stars</span>
+                              <span className="project-stat-pill">Official Krew · ⭐ 6</span>
                               <a href="https://github.com/Dasmat13/kubecorrelate" target="_blank" rel="noreferrer" className="project-link">
                                 GitHub →
                               </a>
@@ -1226,9 +1387,25 @@ export default function App() {
                               Admission Webhook Failure-Chain Analyzer for Kubernetes. Maps webhook dependencies and identifies concrete failure paths blocking API requests.
                             </p>
                             <div className="project-footer">
-                              <span className="project-stat-pill">⭐ 24 stars</span>
+                              <span className="project-stat-pill">Official Krew · ⭐ 1</span>
                               <a href="https://github.com/Dasmat13/kubectl-tripwire" target="_blank" rel="noreferrer" className="project-link">
                                 GitHub →
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="featured-project-item">
+                            <div className="project-header">
+                              <span className="project-title">⭐ Kueue Cycle Resolver</span>
+                              <span className="project-lang-badge go">Go</span>
+                            </div>
+                            <p className="project-description">
+                              Deactivates ClusterQueues when cycle updates occur in cohort hierarchies, preventing scheduling deadlocks in multi-tenant batch workloads.
+                            </p>
+                            <div className="project-footer">
+                              <span className="project-stat-pill">PR #13774 · Merged</span>
+                              <a href="https://github.com/kubernetes-sigs/kueue/pull/13774" target="_blank" rel="noreferrer" className="project-link">
+                                PR Link →
                               </a>
                             </div>
                           </div>
@@ -1271,10 +1448,10 @@ export default function App() {
                               <span className="project-lang-badge js">JS</span>
                             </div>
                             <p className="project-description">
-                              Agricultural peer-to-peer marketplace eliminating intermediary agents to boost farmer income. Built with MERN, AWS, and Socket.io.
+                              Agricultural peer-to-peer marketplace eliminating intermediary agents to boost farmer income. Published research paper in IJSRP 2025.
                             </p>
                             <div className="project-footer">
-                              <span className="project-stat-pill">⭐ 40 stars</span>
+                              <span className="project-stat-pill">IJSRP 2025 Paper</span>
                               <a href="https://github.com/Dasmat13/cropdesk" target="_blank" rel="noreferrer" className="project-link">
                                 GitHub →
                               </a>
