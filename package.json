@@ -10,9 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "@splinetool/react-spline": "^4.1.0",
+    "@splinetool/runtime": "^2.0.64",
+    "@theatre/core": "^0.7.2",
+    "@types/three": "^0.186.0",
+    "curtainsjs": "^8.1.6",
+    "framer-motion": "^13.4.6",
     "lucide-react": "^1.24.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@types/node": "^24.13.2",
