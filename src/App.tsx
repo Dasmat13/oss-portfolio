@@ -30,6 +30,14 @@ import SplineScene from './components/SplineScene';
 import CurtainsCanvas from './components/CurtainsCanvas';
 import { playHeroSequence } from './components/theatreTimeline';
 import { StaggerContainer, StaggerItem, MotionCard } from './components/MotionComponents';
+import {
+  FALLBACK_PROFILE,
+  FALLBACK_DEVSTATS,
+  FALLBACK_MERGED_PRS,
+  FALLBACK_OPEN_PRS,
+  FALLBACK_OPEN_ISSUES,
+  FALLBACK_CLOSED_ISSUES
+} from './fallback-data';
 
 
 const LinkedinIcon: React.FC<{ size?: number; fill?: string; style?: React.CSSProperties; className?: string }> = ({
@@ -430,12 +438,18 @@ export default function App() {
   // Loaded data state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [mergedPRs, setMergedPRs] = useState<any[]>([]);
-  const [openPRs, setOpenPRs] = useState<any[]>([]);
-  const [openIssues, setOpenIssues] = useState<any[]>([]);
-  const [closedIssues, setClosedIssues] = useState<any[]>([]);
-  const [devStats, setDevStats] = useState<{ contributions: number; issues: number; prs: number } | null>(null);
+  const [profile, setProfile] = useState<any>(() => {
+    const cached = localStorage.getItem('oss_portfolio_profile');
+    if (cached) {
+      try { return JSON.parse(cached); } catch { /* ignore */ }
+    }
+    return FALLBACK_PROFILE;
+  });
+  const [mergedPRs, setMergedPRs] = useState<any[]>(FALLBACK_MERGED_PRS);
+  const [openPRs, setOpenPRs] = useState<any[]>(FALLBACK_OPEN_PRS);
+  const [openIssues, setOpenIssues] = useState<any[]>(FALLBACK_OPEN_ISSUES);
+  const [closedIssues, setClosedIssues] = useState<any[]>(FALLBACK_CLOSED_ISSUES);
+  const [devStats, setDevStats] = useState<{ contributions: number; issues: number; prs: number } | null>(FALLBACK_DEVSTATS);
   const [devStatsLoading, setDevStatsLoading] = useState(false);
 
   // Repos detail cache
@@ -516,11 +530,16 @@ export default function App() {
       handleRateLimitHeaders(userRes.headers);
       if (!userRes.ok) {
         if (userRes.status === 404) throw new Error(`GitHub user "${user}" not found.`);
-        if (userRes.status === 403) throw new Error('API Rate limit exceeded. Please add a GitHub Personal Access Token.');
+        if (userRes.status === 403) {
+          console.warn('API Rate limit reached. Using fallback profile.');
+          setLoading(false);
+          return;
+        }
         throw new Error(`Failed to load profile details (HTTP ${userRes.status}).`);
       }
       const profileData = await userRes.json();
       setProfile(profileData);
+      localStorage.setItem('oss_portfolio_profile', JSON.stringify(profileData));
 
       // Fetch Contributions in parallel
       const qMerged = `is:pr+is:merged+author:${user}`;
@@ -528,17 +547,32 @@ export default function App() {
       const qOpenIssue = `is:issue+is:open+author:${user}`;
       const qClosedIssue = `is:issue+is:closed+author:${user}`;
 
-      const [mergedItems, openPrItems, openIssueItems, closedIssueItems] = await Promise.all([
-        fetchAllSearchResults(qMerged, headers, handleRateLimitHeaders),
-        fetchAllSearchResults(qOpenPr, headers, handleRateLimitHeaders),
-        fetchAllSearchResults(qOpenIssue, headers, handleRateLimitHeaders),
-        fetchAllSearchResults(qClosedIssue, headers, handleRateLimitHeaders)
-      ]);
+      let mergedItems: any[] = [];
+      let openPrItems: any[] = [];
+      let openIssueItems: any[] = [];
+      let closedIssueItems: any[] = [];
 
-      setMergedPRs(mergedItems);
-      setOpenPRs(openPrItems);
-      setOpenIssues(openIssueItems);
-      setClosedIssues(closedIssueItems);
+      try {
+        const results = await Promise.all([
+          fetchAllSearchResults(qMerged, headers, handleRateLimitHeaders),
+          fetchAllSearchResults(qOpenPr, headers, handleRateLimitHeaders),
+          fetchAllSearchResults(qOpenIssue, headers, handleRateLimitHeaders),
+          fetchAllSearchResults(qClosedIssue, headers, handleRateLimitHeaders)
+        ]);
+        mergedItems = results[0];
+        openPrItems = results[1];
+        openIssueItems = results[2];
+        closedIssueItems = results[3];
+
+        if (mergedItems.length > 0) setMergedPRs(mergedItems);
+        if (openPrItems.length > 0) setOpenPRs(openPrItems);
+        if (openIssueItems.length > 0) setOpenIssues(openIssueItems);
+        if (closedIssueItems.length > 0) setClosedIssues(closedIssueItems);
+      } catch (searchErr) {
+        console.warn('GitHub search rate limited or unreachable. Preserving cached contributions:', searchErr);
+      }
+
+
 
       // Extract unique repository names across all resources
       const allItems = [
@@ -1021,7 +1055,7 @@ export default function App() {
         )}
 
         {/* Profile Card */}
-        {!error && profile && (
+        {profile && (
           <section className="profile-section">
             <div className="profile-card">
                <div className="profile-avatar-container">
@@ -1148,7 +1182,7 @@ export default function App() {
         )}
 
         {/* Interactive 3D Showcase Stage (R3F, Spline, Theatre.js) */}
-        {!error && !loading && profile && (
+        {profile && (
           <section className="stage-3d-container">
             <div className="stage-3d-header">
               <div className="stage-mode-switcher">
@@ -1196,7 +1230,7 @@ export default function App() {
         )}
 
         {/* Stats Cards Row with Framer Motion */}
-        {!error && !loading && profile && (
+        {profile && (
           <StaggerContainer className="stats-grid" delay={0.1}>
             <StaggerItem>
               <MotionCard className="stat-card" onClick={() => setActiveTab('merged')}>
@@ -1282,7 +1316,7 @@ export default function App() {
         )}
 
         {/* Main interactive panel */}
-        {!error && !loading && profile && (
+        {profile && (
           <>
             {/* Tabs List */}
             <div className="tabs-container">
