@@ -1,29 +1,32 @@
 import { getProject, types } from '@theatre/core';
 
-// Initialize Theatre.js project for portfolio cinematic timeline
-export const theatreProject = getProject('OSSPortfolio', {
-  state: {
-    sheetsById: {
-      HeroTimeline: {
-        staticOverridesByObject: {
-          camera: {
-            zoom: 1,
-            rotationY: 0,
-            distortion: 0
-          },
-          lighting: {
-            intensity: 1.5,
-            coreGlow: 2.0
-          },
-          heroText: {
-            opacity: 1,
-            yOffset: 0
-          }
+// Production state definition for Theatre.js project
+const theatreState = {
+  sheetsById: {
+    HeroTimeline: {
+      staticOverridesByObject: {
+        camera: {
+          zoom: 1,
+          rotationY: 0,
+          distortion: 0
+        },
+        lighting: {
+          intensity: 1.5,
+          coreGlow: 2.0
+        },
+        heroText: {
+          opacity: 1,
+          yOffset: 0
         }
       }
     }
-  }
-});
+  },
+  definitionVersion: '0.4.0',
+  revisionHistory: []
+};
+
+// Initialize Theatre.js project for portfolio cinematic timeline
+export const theatreProject = getProject('OSSPortfolio', { state: theatreState });
 
 export const heroSheet = theatreProject.sheet('HeroTimeline');
 
@@ -45,14 +48,17 @@ export const heroTextObj = heroSheet.object('heroText', {
 
 export function playHeroSequence(onComplete?: () => void) {
   try {
-    heroSheet.sequence.play({ iterationCount: 1, rate: 1 }).then(() => {
-      if (onComplete) onComplete();
+    theatreProject.ready.then(() => {
+      heroSheet.sequence.play({ iterationCount: 1, rate: 1 }).then(() => {
+        if (onComplete) onComplete();
+      }).catch(() => {
+        if (onComplete) onComplete();
+      });
     }).catch(() => {
-      // Graceful fallback if sequence is empty or interrupted
       if (onComplete) onComplete();
     });
   } catch (err) {
-    console.debug('Theatre.js sequence error:', err);
+    console.debug('Theatre sequence playback:', err);
     if (onComplete) onComplete();
   }
 }

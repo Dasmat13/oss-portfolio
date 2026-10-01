@@ -83,10 +83,18 @@ function CentralCore({ activeRepo }: { activeRepo?: string | null }) {
   const [lightIntensity, setLightIntensity] = useState(1.5);
 
   useEffect(() => {
-    const unsubscribe = lightingObj.onValuesChange((values) => {
-      setLightIntensity(values.intensity);
-    });
-    return () => unsubscribe();
+    try {
+      if (lightingObj && typeof lightingObj.onValuesChange === 'function') {
+        const unsubscribe = lightingObj.onValuesChange((values) => {
+          if (values && typeof values.intensity === 'number') {
+            setLightIntensity(values.intensity);
+          }
+        });
+        return () => unsubscribe();
+      }
+    } catch {
+      // Safe fallback
+    }
   }, []);
 
   useFrame((state, delta) => {
@@ -236,10 +244,18 @@ function CameraRig() {
   const [zoomLevel, setZoomLevel] = useState(1);
 
   useEffect(() => {
-    const unsub = cameraObj.onValuesChange((val) => {
-      setZoomLevel(val.zoom);
-    });
-    return () => unsub();
+    try {
+      if (cameraObj && typeof cameraObj.onValuesChange === 'function') {
+        const unsub = cameraObj.onValuesChange((val) => {
+          if (val && typeof val.zoom === 'number') {
+            setZoomLevel(val.zoom);
+          }
+        });
+        return () => unsub();
+      }
+    } catch {
+      // Safe fallback
+    }
   }, []);
 
   useFrame((state) => {
