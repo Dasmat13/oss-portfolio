@@ -19,26 +19,10 @@ import {
   Check,
   Info,
   FolderGit2,
-  SlidersHorizontal,
-  Play,
-  Box
+  SlidersHorizontal
 } from 'lucide-react';
 import './App.css';
 import { fetchAllSearchResults } from './github-search';
-import Scene3D from './components/Scene3D';
-import SplineScene from './components/SplineScene';
-import CurtainsCanvas from './components/CurtainsCanvas';
-import { playHeroSequence } from './components/theatreTimeline';
-import { StaggerContainer, StaggerItem, MotionCard } from './components/MotionComponents';
-import {
-  FALLBACK_PROFILE,
-  FALLBACK_DEVSTATS,
-  FALLBACK_MERGED_PRS,
-  FALLBACK_OPEN_PRS,
-  FALLBACK_OPEN_ISSUES,
-  FALLBACK_CLOSED_ISSUES
-} from './fallback-data';
-
 
 const LinkedinIcon: React.FC<{ size?: number; fill?: string; style?: React.CSSProperties; className?: string }> = ({
   size = 14,
@@ -438,18 +422,12 @@ export default function App() {
   // Loaded data state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [profile, setProfile] = useState<any>(() => {
-    const cached = localStorage.getItem('oss_portfolio_profile');
-    if (cached) {
-      try { return JSON.parse(cached); } catch { /* ignore */ }
-    }
-    return FALLBACK_PROFILE;
-  });
-  const [mergedPRs, setMergedPRs] = useState<any[]>(FALLBACK_MERGED_PRS);
-  const [openPRs, setOpenPRs] = useState<any[]>(FALLBACK_OPEN_PRS);
-  const [openIssues, setOpenIssues] = useState<any[]>(FALLBACK_OPEN_ISSUES);
-  const [closedIssues, setClosedIssues] = useState<any[]>(FALLBACK_CLOSED_ISSUES);
-  const [devStats, setDevStats] = useState<{ contributions: number; issues: number; prs: number } | null>(FALLBACK_DEVSTATS);
+  const [profile, setProfile] = useState<any>(null);
+  const [mergedPRs, setMergedPRs] = useState<any[]>([]);
+  const [openPRs, setOpenPRs] = useState<any[]>([]);
+  const [openIssues, setOpenIssues] = useState<any[]>([]);
+  const [closedIssues, setClosedIssues] = useState<any[]>([]);
+  const [devStats, setDevStats] = useState<{ contributions: number; issues: number; prs: number } | null>(null);
   const [devStatsLoading, setDevStatsLoading] = useState(false);
 
   // Repos detail cache
@@ -461,12 +439,7 @@ export default function App() {
   const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'comments'>('newest');
-  const [avatarFilter, setAvatarFilter] = useState<'curtains' | 'none' | 'punk-collage' | 'dithered-1bit' | 'cmyk-dots'>('curtains');
-  const [view3DMode, setView3DMode] = useState<'r3f' | 'spline'>('r3f');
-
-  const handlePlayTheatre = () => {
-    playHeroSequence();
-  };
+  const [avatarFilter, setAvatarFilter] = useState<'none' | 'punk-collage' | 'dithered-1bit' | 'cmyk-dots'>('none');
 
   // Rate limiting indicator
   const [rateLimit, setRateLimit] = useState<{ limit: number; remaining: number; reset: number } | null>(null);
@@ -530,16 +503,11 @@ export default function App() {
       handleRateLimitHeaders(userRes.headers);
       if (!userRes.ok) {
         if (userRes.status === 404) throw new Error(`GitHub user "${user}" not found.`);
-        if (userRes.status === 403) {
-          console.warn('API Rate limit reached. Using fallback profile.');
-          setLoading(false);
-          return;
-        }
+        if (userRes.status === 403) throw new Error('API Rate limit exceeded. Please add a GitHub Personal Access Token.');
         throw new Error(`Failed to load profile details (HTTP ${userRes.status}).`);
       }
       const profileData = await userRes.json();
       setProfile(profileData);
-      localStorage.setItem('oss_portfolio_profile', JSON.stringify(profileData));
 
       // Fetch Contributions in parallel
       const qMerged = `is:pr+is:merged+author:${user}`;
@@ -547,32 +515,17 @@ export default function App() {
       const qOpenIssue = `is:issue+is:open+author:${user}`;
       const qClosedIssue = `is:issue+is:closed+author:${user}`;
 
-      let mergedItems: any[] = [];
-      let openPrItems: any[] = [];
-      let openIssueItems: any[] = [];
-      let closedIssueItems: any[] = [];
+      const [mergedItems, openPrItems, openIssueItems, closedIssueItems] = await Promise.all([
+        fetchAllSearchResults(qMerged, headers, handleRateLimitHeaders),
+        fetchAllSearchResults(qOpenPr, headers, handleRateLimitHeaders),
+        fetchAllSearchResults(qOpenIssue, headers, handleRateLimitHeaders),
+        fetchAllSearchResults(qClosedIssue, headers, handleRateLimitHeaders)
+      ]);
 
-      try {
-        const results = await Promise.all([
-          fetchAllSearchResults(qMerged, headers, handleRateLimitHeaders),
-          fetchAllSearchResults(qOpenPr, headers, handleRateLimitHeaders),
-          fetchAllSearchResults(qOpenIssue, headers, handleRateLimitHeaders),
-          fetchAllSearchResults(qClosedIssue, headers, handleRateLimitHeaders)
-        ]);
-        mergedItems = results[0];
-        openPrItems = results[1];
-        openIssueItems = results[2];
-        closedIssueItems = results[3];
-
-        if (mergedItems.length > 0) setMergedPRs(mergedItems);
-        if (openPrItems.length > 0) setOpenPRs(openPrItems);
-        if (openIssueItems.length > 0) setOpenIssues(openIssueItems);
-        if (closedIssueItems.length > 0) setClosedIssues(closedIssueItems);
-      } catch (searchErr) {
-        console.warn('GitHub search rate limited or unreachable. Preserving cached contributions:', searchErr);
-      }
-
-
+      setMergedPRs(mergedItems);
+      setOpenPRs(openPrItems);
+      setOpenIssues(openIssueItems);
+      setClosedIssues(closedIssueItems);
 
       // Extract unique repository names across all resources
       const allItems = [
@@ -1055,27 +1008,15 @@ export default function App() {
         )}
 
         {/* Profile Card */}
-        {profile && (
+        {!error && profile && (
           <section className="profile-section">
             <div className="profile-card">
                <div className="profile-avatar-container">
-                 {avatarFilter === 'curtains' ? (
-                   <div className="curtains-avatar-holder">
-                     <CurtainsCanvas
-                       imageSrc={profile.avatar_url}
-                       alt={profile.login}
-                       width={110}
-                       height={110}
-                     />
-                   </div>
-                 ) : (
-                   <div className={`avatar-img-wrapper filter-${avatarFilter}`}>
-                     <img src={profile.avatar_url} alt={profile.login} className="profile-avatar" />
-                     <div className="avatar-filter-overlay"></div>
-                   </div>
-                 )}
+                 <div className={`avatar-img-wrapper filter-${avatarFilter}`}>
+                   <img src={profile.avatar_url} alt={profile.login} className="profile-avatar" />
+                   <div className="avatar-filter-overlay"></div>
+                 </div>
                  <div className="avatar-filter-picker">
-                   <button className={avatarFilter === 'curtains' ? 'active' : ''} onClick={() => setAvatarFilter('curtains')} title="Curtains.js WebGL Liquid Distortion">Liquid WebGL</button>
                    <button className={avatarFilter === 'none' ? 'active' : ''} onClick={() => setAvatarFilter('none')} title="No Filter">Original</button>
                    <button className={avatarFilter === 'punk-collage' ? 'active' : ''} onClick={() => setAvatarFilter('punk-collage')} title="Punk Collage">Punk</button>
                    <button className={avatarFilter === 'dithered-1bit' ? 'active' : ''} onClick={() => setAvatarFilter('dithered-1bit')} title="Dithered 1-bit">1-Bit</button>
@@ -1090,16 +1031,9 @@ export default function App() {
                   </a>
                 </div>
                 <p className="profile-bio">{'Building Kubernetes, Go and Cloud Native tooling.'}</p>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '700', marginTop: '-10px', marginBottom: '8px' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '700', marginTop: '-10px', marginBottom: '14px' }}>
                   Kubernetes • Go • CNCF Open Source Contributor
                 </p>
-                <div className="tech-stack-strip" style={{ marginBottom: '14px' }}>
-                  <span className="tech-badge r3f">Three.js / R3F</span>
-                  <span className="tech-badge spline">Spline 3D</span>
-                  <span className="tech-badge theatre">Theatre.js</span>
-                  <span className="tech-badge curtains">Curtains.js</span>
-                  <span className="tech-badge framer">Framer Motion</span>
-                </div>
                 
                 <div className="profile-meta">
                   {profile.location && (
@@ -1181,130 +1115,69 @@ export default function App() {
           </section>
         )}
 
-        {/* Interactive 3D Showcase Stage (R3F, Spline, Theatre.js) */}
-        {profile && (
-          <section className="stage-3d-container">
-            <div className="stage-3d-header">
-              <div className="stage-mode-switcher">
-                <button
-                  type="button"
-                  className={`stage-mode-btn ${view3DMode === 'r3f' ? 'active' : ''}`}
-                  onClick={() => setView3DMode('r3f')}
-                  title="Interactive React Three Fiber 3D Galaxy"
-                >
-                  <Box size={13} />
-                  <span>3D Galaxy (R3F)</span>
-                </button>
-                <button
-                  type="button"
-                  className={`stage-mode-btn ${view3DMode === 'spline' ? 'active' : ''}`}
-                  onClick={() => setView3DMode('spline')}
-                  title="Interactive Spline 3D Scene"
-                >
-                  <Sparkles size={13} />
-                  <span>Spline 3D</span>
-                </button>
+        {/* Stats Cards Row */}
+        {!error && !loading && profile && (
+          <section className="stats-grid">
+            <div className="stat-card" onClick={() => setActiveTab('merged')} style={{ cursor: 'pointer' }}>
+              <div className="stat-card-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-emerald)' }}>
+                <GitMerge size={22} />
               </div>
-
-              <button
-                type="button"
-                className="theatre-trigger-btn"
-                onClick={handlePlayTheatre}
-                title="Trigger Theatre.js cinematic timeline playback"
-              >
-                <Play size={12} fill="currentColor" />
-                <span>Theatre.js Intro</span>
-              </button>
+              <div className="stat-card-info">
+                <span className="stat-value" style={{ color: 'var(--accent-emerald)' }}>{mergedPRs.length}</span>
+                <span className="stat-label">Merged PRs</span>
+              </div>
             </div>
 
-            {view3DMode === 'r3f' ? (
-              <Scene3D
-                repositories={reposStats.map(r => r.name)}
-                activeRepo={selectedRepo}
-                onSelectRepo={(r) => setSelectedRepo(r)}
-              />
-            ) : (
-              <SplineScene />
-            )}
+            <div className="stat-card" onClick={() => setActiveTab('openPrs')} style={{ cursor: 'pointer' }}>
+              <div className="stat-card-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-blue)' }}>
+                <GitPullRequest size={22} />
+              </div>
+              <div className="stat-card-info">
+                <span className="stat-value" style={{ color: 'var(--accent-blue)' }}>{openPRs.length}</span>
+                <span className="stat-label">Ongoing PRs</span>
+              </div>
+            </div>
+
+            <div className="stat-card" onClick={() => setActiveTab('openIssues')} style={{ cursor: 'pointer' }}>
+              <div className="stat-card-icon" style={{ background: 'rgba(168, 85, 247, 0.1)', color: 'var(--accent-purple)' }}>
+                <AlertCircle size={22} />
+              </div>
+              <div className="stat-card-info">
+                <span className="stat-value" style={{ color: 'var(--accent-purple)' }}>{openIssues.length}</span>
+                <span className="stat-label">Ongoing Issues</span>
+              </div>
+            </div>
+
+            <div className="stat-card" onClick={() => setActiveTab('closedIssues')} style={{ cursor: 'pointer' }}>
+              <div className="stat-card-icon" style={{ background: 'rgba(236, 72, 153, 0.1)', color: 'var(--accent-pink)' }}>
+                <CheckCircle2 size={22} />
+              </div>
+              <div className="stat-card-info">
+                <span className="stat-value" style={{ color: 'var(--accent-pink)' }}>{closedIssues.length}</span>
+                <span className="stat-label">Solved Issues</span>
+              </div>
+            </div>
+
+            <a 
+              href={`https://devstats.cluster.fun/?user=${username}`} 
+              target="_blank" 
+              rel="noreferrer" 
+              className="stat-card" 
+              style={{ cursor: 'pointer', textDecoration: 'none' }}
+              title="Click to view full CNCF DevStats report"
+            >
+              <div className="stat-card-icon" style={{ background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6' }}>
+                <Sparkles size={22} />
+              </div>
+              <div className="stat-card-info">
+                <span className="stat-value" style={{ color: '#8b5cf6' }}>
+                  {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}
+                </span>
+                <span className="stat-label">CNCF DevStats</span>
+              </div>
+            </a>
           </section>
         )}
-
-        {/* Stats Cards Row with Framer Motion */}
-        {profile && (
-          <StaggerContainer className="stats-grid" delay={0.1}>
-            <StaggerItem>
-              <MotionCard className="stat-card" onClick={() => setActiveTab('merged')}>
-                <div className="stat-card-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-emerald)' }}>
-                  <GitMerge size={22} />
-                </div>
-                <div className="stat-card-info">
-                  <span className="stat-value" style={{ color: 'var(--accent-emerald)' }}>{mergedPRs.length}</span>
-                  <span className="stat-label">Merged PRs</span>
-                </div>
-              </MotionCard>
-            </StaggerItem>
-
-            <StaggerItem>
-              <MotionCard className="stat-card" onClick={() => setActiveTab('openPrs')}>
-                <div className="stat-card-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-blue)' }}>
-                  <GitPullRequest size={22} />
-                </div>
-                <div className="stat-card-info">
-                  <span className="stat-value" style={{ color: 'var(--accent-blue)' }}>{openPRs.length}</span>
-                  <span className="stat-label">Ongoing PRs</span>
-                </div>
-              </MotionCard>
-            </StaggerItem>
-
-            <StaggerItem>
-              <MotionCard className="stat-card" onClick={() => setActiveTab('openIssues')}>
-                <div className="stat-card-icon" style={{ background: 'rgba(168, 85, 247, 0.1)', color: 'var(--accent-purple)' }}>
-                  <AlertCircle size={22} />
-                </div>
-                <div className="stat-card-info">
-                  <span className="stat-value" style={{ color: 'var(--accent-purple)' }}>{openIssues.length}</span>
-                  <span className="stat-label">Ongoing Issues</span>
-                </div>
-              </MotionCard>
-            </StaggerItem>
-
-            <StaggerItem>
-              <MotionCard className="stat-card" onClick={() => setActiveTab('closedIssues')}>
-                <div className="stat-card-icon" style={{ background: 'rgba(236, 72, 153, 0.1)', color: 'var(--accent-pink)' }}>
-                  <CheckCircle2 size={22} />
-                </div>
-                <div className="stat-card-info">
-                  <span className="stat-value" style={{ color: 'var(--accent-pink)' }}>{closedIssues.length}</span>
-                  <span className="stat-label">Solved Issues</span>
-                </div>
-              </MotionCard>
-            </StaggerItem>
-
-            <StaggerItem>
-              <MotionCard>
-                <a 
-                  href={`https://devstats.cluster.fun/?user=${username}`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="stat-card" 
-                  style={{ textDecoration: 'none' }}
-                  title="Click to view full CNCF DevStats report"
-                >
-                  <div className="stat-card-icon" style={{ background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6' }}>
-                    <Sparkles size={22} />
-                  </div>
-                  <div className="stat-card-info">
-                    <span className="stat-value" style={{ color: '#8b5cf6' }}>
-                      {devStats ? devStats.contributions : (devStatsLoading ? '...' : '312')}
-                    </span>
-                    <span className="stat-label">CNCF DevStats</span>
-                  </div>
-                </a>
-              </MotionCard>
-            </StaggerItem>
-          </StaggerContainer>
-        )}
-
 
         {/* Loading Spinner */}
         {loading && (
@@ -1316,7 +1189,7 @@ export default function App() {
         )}
 
         {/* Main interactive panel */}
-        {profile && (
+        {!error && !loading && profile && (
           <>
             {/* Tabs List */}
             <div className="tabs-container">
@@ -1872,7 +1745,7 @@ export default function App() {
                       </button>
                     </div>
                   ) : (
-                    <StaggerContainer className="flex flex-col gap-3">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {processedItems.map(item => {
                         const repo = getRepoName(item.html_url);
                         const lang = getRepoLanguage(repo);
@@ -1893,74 +1766,71 @@ export default function App() {
                         }
 
                         return (
-                          <StaggerItem key={item.id}>
-                            <MotionCard className={`contribution-card ${cardState}`}>
-                              <div className="card-top">
-                                <a href={item.html_url} target="_blank" rel="noreferrer" className="card-title-link">
-                                  {item.title}
-                                </a>
-                                <span className={`badge badge-${cardState}`}>
-                                  {cardState === 'merged' && <GitMerge size={12} />}
-                                  {cardState === 'open' && <GitPullRequest size={12} />}
-                                  {cardState === 'closed' && <CheckCircle2 size={12} />}
-                                  {badgeLabel}
+                          <div className={`contribution-card ${cardState}`} key={item.id}>
+                            <div className="card-top">
+                              <a href={item.html_url} target="_blank" rel="noreferrer" className="card-title-link">
+                                {item.title}
+                              </a>
+                              <span className={`badge badge-${cardState}`}>
+                                {cardState === 'merged' && <GitMerge size={12} />}
+                                {cardState === 'open' && <GitPullRequest size={12} />}
+                                {cardState === 'closed' && <CheckCircle2 size={12} />}
+                                {badgeLabel}
+                              </span>
+                            </div>
+
+                            <div className="card-meta-row">
+                              <span className="repo-badge">
+                                <BookOpen size={11} />
+                                {repo}
+                              </span>
+                              
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span className="lang-dot" style={{ backgroundColor: langColor, width: '8px', height: '8px' }}></span>
+                                {lang}
+                              </span>
+
+                              {repoStars !== undefined && (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                  <Star size={11} style={{ fill: 'var(--accent-amber)', stroke: 'none' }} />
+                                  {getRepoStars(repo)} stars
                                 </span>
-                              </div>
-
-                              <div className="card-meta-row">
-                                <span className="repo-badge">
-                                  <BookOpen size={11} />
-                                  {repo}
-                                </span>
-                                
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  <span className="lang-dot" style={{ backgroundColor: langColor, width: '8px', height: '8px' }}></span>
-                                  {lang}
-                                </span>
-
-                                {repoStars !== undefined && (
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                    <Star size={11} style={{ fill: 'var(--accent-amber)', stroke: 'none' }} />
-                                    {getRepoStars(repo)} stars
-                                  </span>
-                                )}
-
-                                <span className="date-text">
-                                  {activeTab === 'merged' 
-                                    ? `merged ${formatRelativeDate(item.closed_at || item.updated_at)}` 
-                                    : `created ${formatRelativeDate(item.created_at)}`}
-                                </span>
-
-                                {item.comments > 0 && (
-                                  <span style={{ color: 'var(--accent-cyan)' }}>
-                                    💬 {item.comments} {item.comments === 1 ? 'comment' : 'comments'}
-                                  </span>
-                                )}
-                              </div>
-
-                              {item.labels && item.labels.length > 0 && (
-                                <div className="card-labels">
-                                  {item.labels.slice(0, 5).map((label: any) => (
-                                    <span
-                                      key={label.id}
-                                      className="label-pill"
-                                      style={{
-                                        borderColor: `#${label.color}`,
-                                        color: `#${label.color}`,
-                                        backgroundColor: `#${label.color}10`
-                                      }}
-                                    >
-                                      {label.name}
-                                    </span>
-                                  ))}
-                                </div>
                               )}
-                            </MotionCard>
-                          </StaggerItem>
+
+                              <span className="date-text">
+                                {activeTab === 'merged' 
+                                  ? `merged ${formatRelativeDate(item.closed_at || item.updated_at)}` 
+                                  : `created ${formatRelativeDate(item.created_at)}`}
+                              </span>
+
+                              {item.comments > 0 && (
+                                <span style={{ color: 'var(--accent-cyan)' }}>
+                                  💬 {item.comments} {item.comments === 1 ? 'comment' : 'comments'}
+                                </span>
+                              )}
+                            </div>
+
+                            {item.labels && item.labels.length > 0 && (
+                              <div className="card-labels">
+                                {item.labels.slice(0, 5).map((label: any) => (
+                                  <span
+                                    key={label.id}
+                                    className="label-pill"
+                                    style={{
+                                      borderColor: `#${label.color}`,
+                                      color: `#${label.color}`,
+                                      backgroundColor: `#${label.color}10`
+                                    }}
+                                  >
+                                    {label.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
-                    </StaggerContainer>
-
+                    </div>
                   )}
                 </section>
               )}
